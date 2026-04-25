@@ -1,12 +1,38 @@
-import { sql } from "@vercel/postgres";
+import postgres from "postgres";
 import type { Unit, UnitInput } from "./types";
 
-function isDbConfigured() {
-  return Boolean(
+function getConnectionString(): string | null {
+  return (
     process.env.POSTGRES_URL ||
-      process.env.POSTGRES_PRISMA_URL ||
-      process.env.DATABASE_URL,
+    process.env.POSTGRES_PRISMA_URL ||
+    process.env.POSTGRES_URL_NON_POOLING ||
+    process.env.DATABASE_URL ||
+    null
   );
+}
+
+function isDbConfigured() {
+  return Boolean(getConnectionString());
+}
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __gkr_sql: ReturnType<typeof postgres> | undefined;
+}
+
+function getSql() {
+  if (!global.__gkr_sql) {
+    const url = getConnectionString();
+    if (!url) throw new Error("Database is not configured");
+    global.__gkr_sql = postgres(url, {
+      ssl: "require",
+      prepare: false,
+      max: 5,
+      idle_timeout: 20,
+      connect_timeout: 10,
+    });
+  }
+  return global.__gkr_sql;
 }
 
 let initPromise: Promise<void> | null = null;
@@ -14,6 +40,7 @@ let initPromise: Promise<void> | null = null;
 async function ensureSchema() {
   if (!isDbConfigured()) return;
   if (!initPromise) {
+    const sql = getSql();
     initPromise = (async () => {
       await sql`
         CREATE TABLE IF NOT EXISTS units (
@@ -31,7 +58,7 @@ async function ensureSchema() {
           amenities JSONB NOT NULL DEFAULT '[]'::jsonb,
           services JSONB NOT NULL DEFAULT '[]'::jsonb,
           booking_url TEXT,
-          created_at TIMESTAMP NOT NULL DEFAULT NOW()
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
       `;
     })();
@@ -58,6 +85,7 @@ type UnitRow = {
 };
 
 function rowToUnit(row: UnitRow): Unit {
+  const created = row.created_at;
   return {
     id: row.id,
     name: row.name,
@@ -74,16 +102,15 @@ function rowToUnit(row: UnitRow): Unit {
     services: row.services ?? [],
     bookingUrl: row.booking_url,
     createdAt:
-      row.created_at instanceof Date
-        ? row.created_at.toISOString()
-        : String(row.created_at),
+      created instanceof Date ? created.toISOString() : String(created),
   };
 }
 
 export async function listUnits(): Promise<Unit[]> {
   if (!isDbConfigured()) return [];
   await ensureSchema();
-  const { rows } = await sql<UnitRow>`
+  const sql = getSql();
+  const rows = await sql<UnitRow[]>`
     SELECT * FROM units ORDER BY created_at DESC
   `;
   return rows.map(rowToUnit);
@@ -92,7 +119,8 @@ export async function listUnits(): Promise<Unit[]> {
 export async function getUnit(id: string): Promise<Unit | null> {
   if (!isDbConfigured()) return null;
   await ensureSchema();
-  const { rows } = await sql<UnitRow>`
+  const sql = getSql();
+  const rows = await sql<UnitRow[]>`
     SELECT * FROM units WHERE id = ${id} LIMIT 1
   `;
   return rows[0] ? rowToUnit(rows[0]) : null;
@@ -112,6 +140,7 @@ export async function createUnit(input: UnitInput): Promise<Unit> {
     );
   }
   await ensureSchema();
+  const sql = getSql();
   const id = genId();
   await sql`
     INSERT INTO units (
@@ -125,13 +154,13 @@ export async function createUnit(input: UnitInput): Promise<Unit> {
       ${input.shortDescription},
       ${input.fullDescription},
       ${input.coverImageUrl},
-      ${JSON.stringify(input.photoUrls)}::jsonb,
+      ${sql.json(input.photoUrls)},
       ${input.bedrooms},
       ${input.bathrooms},
       ${input.maxGuests},
       ${input.pricePerNight},
-      ${JSON.stringify(input.amenities)}::jsonb,
-      ${JSON.stringify(input.services)}::jsonb,
+      ${sql.json(input.amenities)},
+      ${sql.json(input.services)},
       ${input.bookingUrl}
     )
   `;
@@ -146,6 +175,7 @@ export async function updateUnit(
 ): Promise<Unit | null> {
   if (!isDbConfigured()) return null;
   await ensureSchema();
+  const sql = getSql();
   await sql`
     UPDATE units SET
       name = ${input.name},
@@ -153,13 +183,13 @@ export async function updateUnit(
       short_description = ${input.shortDescription},
       full_description = ${input.fullDescription},
       cover_image_url = ${input.coverImageUrl},
-      photo_urls = ${JSON.stringify(input.photoUrls)}::jsonb,
+      photo_urls = ${sql.json(input.photoUrls)},
       bedrooms = ${input.bedrooms},
       bathrooms = ${input.bathrooms},
       max_guests = ${input.maxGuests},
       price_per_night = ${input.pricePerNight},
-      amenities = ${JSON.stringify(input.amenities)}::jsonb,
-      services = ${JSON.stringify(input.services)}::jsonb,
+      amenities = ${sql.json(input.amenities)},
+      services = ${sql.json(input.services)},
       booking_url = ${input.bookingUrl}
     WHERE id = ${id}
   `;
@@ -169,6 +199,7 @@ export async function updateUnit(
 export async function deleteUnit(id: string): Promise<void> {
   if (!isDbConfigured()) return;
   await ensureSchema();
+  const sql = getSql();
   await sql`DELETE FROM units WHERE id = ${id}`;
 }
 
