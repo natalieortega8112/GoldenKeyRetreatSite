@@ -1,0 +1,55 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+
+export function Hero() {
+  return (
+    <section className="mx-auto max-w-7xl px-6 lg:px-10 pt-12 lg:pt-20 pb-12">
+      <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+        <div>
+          <p className="text-xs tracking-[0.32em] uppercase text-gold-deep mb-5">
+            Welcome to Golden Key Retreats
+          </p>
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl leading-[1.05] text-ink mb-6">
+            Clean, elevated stays
+            <br />
+            built for{" "}
+            <span className="italic text-gold-deep">comfort, simplicity,</span>{" "}
+            and trust.
+          </h1>
+          <p className="text-base lg:text-lg text-charcoal/80 max-w-xl leading-relaxed mb-8">
+            Golden Key Retreats is a modern stay brand in Miami focused on
+            polished interiors, seamless experiences, and dependable hosting —
+            so you can relax and enjoy your stay.
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <Link
+              href="#featured-units"
+              className="btn-gold inline-flex items-center gap-2 px-6 py-3 rounded-md text-sm font-medium tracking-wide"
+            >
+              View Featured Units
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+
+        <div className="relative">
+          <div className="aspect-[4/3] w-full rounded-2xl overflow-hidden bg-gradient-to-br from-cream-soft to-gold-soft/40 ring-1 ring-line/80 shadow-xl shadow-gold/5">
+            <div className="w-full h-full flex flex-col items-center justify-center text-center px-8">
+              <div className="text-xs tracking-[0.3em] uppercase text-gold-deep mb-3">
+                Placeholder Preview
+              </div>
+              <div className="font-serif text-2xl text-ink">
+                Real unit photos coming soon
+              </div>
+              <div className="mt-6 h-px w-16 bg-gold/60" />
+              <p className="mt-4 text-sm text-muted max-w-xs">
+                Add your first unit from the admin panel to populate this space.
+              </p>
+            </div>
+          </div>
+          <div className="absolute -bottom-6 -right-6 hidden md:block w-32 h-32 rounded-full bg-gold/10 blur-2xl" />
+        </div>
+      </div>
+    </section>
+  );
+}

@@ -1,26 +1,81 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf6ef;
+  --foreground: #1f2421;
+
+  --gkr-cream: #faf6ef;
+  --gkr-cream-soft: #f3ecde;
+  --gkr-gold: #c9a24b;
+  --gkr-gold-deep: #a8842d;
+  --gkr-gold-soft: #e2c98a;
+  --gkr-ink: #1f2421;
+  --gkr-charcoal: #2a2f2c;
+  --gkr-muted: #6b6760;
+  --gkr-line: #e8dfcc;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-cream: var(--gkr-cream);
+  --color-cream-soft: var(--gkr-cream-soft);
+  --color-gold: var(--gkr-gold);
+  --color-gold-deep: var(--gkr-gold-deep);
+  --color-gold-soft: var(--gkr-gold-soft);
+  --color-ink: var(--gkr-ink);
+  --color-charcoal: var(--gkr-charcoal);
+  --color-muted: var(--gkr-muted);
+  --color-line: var(--gkr-line);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+  --font-script: var(--font-allura);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-playfair), Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+.signature {
+  font-family: var(--font-allura), cursive;
+}
+
+.btn-gold {
+  background: var(--gkr-gold);
+  color: #fff;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+.btn-gold:hover {
+  background: var(--gkr-gold-deep);
+}
+.btn-gold:active {
+  transform: translateY(1px);
+}
+
+.btn-outline {
+  border: 1px solid var(--gkr-gold);
+  color: var(--gkr-gold-deep);
+  background: transparent;
+  transition: background 0.2s ease;
+}
+.btn-outline:hover {
+  background: var(--gkr-cream-soft);
+}
+
+.divider-gold {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gkr-gold-soft), transparent);
 }
