@@ -24,9 +24,9 @@ export default async function EditUnitPage({
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-6 lg:px-10 py-12">
-      <h1 className="font-serif text-3xl text-ink mb-1">Edit Unit</h1>
-      <p className="text-sm text-charcoal/70 mb-8">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 py-8 sm:py-12">
+      <h1 className="font-serif text-2xl sm:text-3xl text-ink mb-1">Edit Unit</h1>
+      <p className="text-sm text-charcoal/70 mb-6 sm:mb-8">
         Update details, manage photos, and save your changes.
       </p>
       <UnitForm

@@ -15,16 +15,16 @@ export default async function UnitsPage() {
   const units = await listUnits().catch(() => []);
 
   return (
-    <div className="mx-auto max-w-7xl px-6 lg:px-10 py-16">
-      <div className="text-center mb-12">
-        <p className="text-xs tracking-[0.32em] uppercase text-gold-deep mb-3">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 py-12 sm:py-16">
+      <div className="text-center mb-10 sm:mb-12">
+        <p className="text-[10px] sm:text-xs tracking-[0.32em] uppercase text-gold-deep mb-3">
           Our Properties
         </p>
-        <h1 className="font-serif text-4xl md:text-5xl text-ink">
+        <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl text-ink">
           Featured Units
         </h1>
         <div className="mx-auto mt-5 w-24 divider-gold" />
-        <p className="mt-5 text-charcoal/75 max-w-2xl mx-auto">
+        <p className="mt-5 text-sm sm:text-base text-charcoal/75 max-w-2xl mx-auto">
           Each Golden Key Retreats stay is hand-prepared by Natalie and her team
           for a clean, elevated experience. Tap a unit to see photos, included
           services, and details.
@@ -48,7 +48,7 @@ export default async function UnitsPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {units.map((u) => (
             <Link
               key={u.id}

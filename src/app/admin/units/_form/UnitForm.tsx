@@ -43,9 +43,9 @@ export function UnitForm({ initial, action, submitLabel }: Props) {
           setSubmitting(false);
         }
       }}
-      className="grid lg:grid-cols-3 gap-6"
+      className="grid lg:grid-cols-3 gap-4 sm:gap-6"
     >
-      <div className="lg:col-span-2 space-y-5">
+      <div className="lg:col-span-2 space-y-4 sm:space-y-5">
         <Card title="Basics">
           <Field label="Unit Name *" name="name" defaultValue={initial?.name} required />
           <Field
@@ -123,7 +123,7 @@ export function UnitForm({ initial, action, submitLabel }: Props) {
         </Card>
       </div>
 
-      <div className="space-y-5">
+      <div className="space-y-4 sm:space-y-5">
         <Card title="Photos">
           <input
             type="file"

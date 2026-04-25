@@ -18,17 +18,19 @@ export default async function AdminUnitsPage() {
   const units = dbReady ? await listUnits().catch(() => []) : [];
 
   return (
-    <div className="mx-auto max-w-7xl px-6 lg:px-10 py-12">
-      <div className="flex items-center justify-between mb-8">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 py-8 sm:py-12">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="font-serif text-3xl text-ink">Manage Units</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl text-ink">
+            Manage Units
+          </h1>
           <p className="text-sm text-charcoal/70 mt-1">
             Add, edit, or remove the properties shown on your site.
           </p>
         </div>
         <Link
           href="/admin/units/new"
-          className="btn-gold inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium"
+          className="btn-gold inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" /> New Unit
         </Link>
@@ -60,9 +62,10 @@ export default async function AdminUnitsPage() {
           {units.map((u) => (
             <div
               key={u.id}
-              className="flex items-center gap-5 p-4"
+              className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5 p-4"
             >
-              <div className="w-20 h-20 rounded-md overflow-hidden bg-cream-soft relative shrink-0">
+              <div className="flex items-center gap-4 flex-1 min-w-0">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-md overflow-hidden bg-cream-soft relative shrink-0">
                 {u.coverImageUrl ? (
                   <Image
                     src={u.coverImageUrl}
@@ -78,10 +81,10 @@ export default async function AdminUnitsPage() {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-xs uppercase tracking-[0.2em] text-gold-deep">
+                <div className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-gold-deep">
                   {u.location}
                 </div>
-                <div className="font-serif text-lg text-ink truncate">
+                <div className="font-serif text-base sm:text-lg text-ink truncate">
                   {u.name}
                 </div>
                 <div className="text-xs text-muted mt-0.5">
@@ -89,7 +92,8 @@ export default async function AdminUnitsPage() {
                   {u.maxGuests ?? "—"}
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              </div>
+              <div className="flex items-center gap-2 shrink-0 self-stretch sm:self-auto">
                 <Link
                   href={`/admin/units/${u.id}/edit`}
                   className="btn-outline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs"

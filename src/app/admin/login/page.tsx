@@ -28,7 +28,7 @@ export default async function AdminLoginPage({
   const error = sp.error;
 
   return (
-    <div className="mx-auto max-w-md px-6 py-20">
+    <div className="mx-auto max-w-md px-4 sm:px-6 py-12 sm:py-20">
       <div className="bg-white ring-1 ring-line rounded-xl p-8 shadow-sm">
         <div className="flex justify-center mb-5">
           <div className="w-14 h-14 rounded-full bg-gold/15 text-gold-deep flex items-center justify-center">

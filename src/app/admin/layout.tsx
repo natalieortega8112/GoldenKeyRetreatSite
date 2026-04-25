@@ -19,8 +19,8 @@ export default async function AdminLayout({
     <div className="bg-cream min-h-full">
       {admin && (
         <div className="border-b border-line bg-white">
-          <div className="mx-auto max-w-7xl px-6 lg:px-10 h-12 flex items-center justify-between text-sm">
-            <div className="flex items-center gap-6">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 h-12 flex items-center justify-between text-sm">
+            <div className="flex items-center gap-3 sm:gap-6">
               <span className="text-xs uppercase tracking-[0.25em] text-gold-deep">
                 Admin
               </span>

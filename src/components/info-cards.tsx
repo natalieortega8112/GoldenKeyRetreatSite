@@ -2,8 +2,8 @@ import { MapPin, Star } from "lucide-react";
 
 export function InfoCards() {
   return (
-    <section className="mx-auto max-w-7xl px-6 lg:px-10 pb-16">
-      <div className="grid sm:grid-cols-2 gap-5">
+    <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 pb-12 sm:pb-16">
+      <div className="grid sm:grid-cols-2 gap-4 sm:gap-5">
         <Card
           icon={<MapPin className="w-5 h-5" />}
           title="Miami-Based"

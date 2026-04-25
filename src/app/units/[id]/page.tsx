@@ -30,16 +30,16 @@ export default async function UnitDetailPage({
   ];
 
   return (
-    <div className="mx-auto max-w-7xl px-6 lg:px-10 py-12">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 py-8 sm:py-12">
       <Link
         href="/units"
-        className="inline-flex items-center gap-2 text-sm text-charcoal hover:text-gold-deep mb-8"
+        className="inline-flex items-center gap-2 text-sm text-charcoal hover:text-gold-deep mb-6 sm:mb-8"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Featured Units
       </Link>
 
-      <div className="grid lg:grid-cols-2 gap-10 mb-12">
+      <div className="grid lg:grid-cols-2 gap-6 sm:gap-10 mb-10 sm:mb-12">
         <div>
           <div className="aspect-[4/3] rounded-xl overflow-hidden bg-cream-soft ring-1 ring-line relative">
             {allPhotos[0] ? (
@@ -82,7 +82,7 @@ export default async function UnitDetailPage({
             <MapPin className="w-3.5 h-3.5" />
             {unit.location}
           </div>
-          <h1 className="font-serif text-4xl md:text-5xl text-ink mb-4">
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl text-ink mb-4">
             {unit.name}
           </h1>
           {unit.shortDescription && (
@@ -143,15 +143,15 @@ export default async function UnitDetailPage({
       </div>
 
       {unit.fullDescription && (
-        <section className="bg-white rounded-xl ring-1 ring-line p-8 mb-10">
-          <h2 className="font-serif text-2xl text-ink mb-4">About This Stay</h2>
+        <section className="bg-white rounded-xl ring-1 ring-line p-6 sm:p-8 mb-8 sm:mb-10">
+          <h2 className="font-serif text-xl sm:text-2xl text-ink mb-4">About This Stay</h2>
           <div className="prose prose-sm max-w-none text-charcoal/85 leading-relaxed whitespace-pre-line">
             {unit.fullDescription}
           </div>
         </section>
       )}
 
-      <div className="grid md:grid-cols-2 gap-6 mb-12">
+      <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mb-12">
         {unit.amenities.length > 0 && (
           <ListBlock
             title="Amenities"

@@ -8,20 +8,20 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="mx-auto max-w-7xl px-6 lg:px-10 py-16">
-      <div className="text-center mb-12">
-        <p className="text-xs tracking-[0.32em] uppercase text-gold-deep mb-3">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 py-12 sm:py-16">
+      <div className="text-center mb-10 sm:mb-12">
+        <p className="text-[10px] sm:text-xs tracking-[0.32em] uppercase text-gold-deep mb-3">
           Get In Touch
         </p>
-        <h1 className="font-serif text-4xl md:text-5xl text-ink">Contact</h1>
+        <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl text-ink">Contact</h1>
         <div className="mx-auto mt-5 w-24 divider-gold" />
-        <p className="mt-5 text-charcoal/75 max-w-xl mx-auto">
+        <p className="mt-5 text-sm sm:text-base text-charcoal/75 max-w-xl mx-auto">
           Questions about a stay, a service, or one of our properties? Reach
           out — we&apos;ll get back to you quickly.
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-5 gap-8">
+      <div className="grid lg:grid-cols-5 gap-6 sm:gap-8">
         <aside className="lg:col-span-2 space-y-4">
           <InfoBlock
             icon={<Mail className="w-4 h-4" />}
@@ -73,22 +73,24 @@ function InfoBlock({
       <div className="w-10 h-10 rounded-full bg-gold/15 text-gold-deep flex items-center justify-center shrink-0">
         {icon}
       </div>
-      <div>
+      <div className="min-w-0">
         <div className="text-[10px] uppercase tracking-[0.25em] text-muted">
           {label}
         </div>
-        <div className="text-sm text-ink mt-0.5">{value}</div>
+        <div className="text-sm text-ink mt-0.5 break-all">{value}</div>
       </div>
     </div>
   );
   return href ? (
     <a
       href={href}
-      className="block bg-white rounded-xl ring-1 ring-line p-5 hover:ring-gold transition"
+      className="block bg-white rounded-xl ring-1 ring-line p-5 hover:ring-gold transition break-words"
     >
       {inner}
     </a>
   ) : (
-    <div className="bg-white rounded-xl ring-1 ring-line p-5">{inner}</div>
+    <div className="bg-white rounded-xl ring-1 ring-line p-5 break-words">
+      {inner}
+    </div>
   );
 }
