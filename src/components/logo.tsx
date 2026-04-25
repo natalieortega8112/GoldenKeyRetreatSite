@@ -4,9 +4,9 @@ import Image from "next/image";
 type LogoSize = "header" | "header-lg" | "footer";
 
 const sizes: Record<LogoSize, { className: string }> = {
-  header: { className: "h-8 sm:h-10" },
-  "header-lg": { className: "h-10 sm:h-12" },
-  footer: { className: "h-9 sm:h-11" },
+  header: { className: "h-10 sm:h-14" },
+  "header-lg": { className: "h-12 sm:h-16" },
+  footer: { className: "h-10 sm:h-12" },
 };
 
 export function Logo({
