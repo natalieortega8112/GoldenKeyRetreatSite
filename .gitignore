@@ -37,6 +37,10 @@ yarn-error.log*
 # project-local design references (kept local, not pushed)
 /References
 
+# stray screenshots dropped into the project root
+/Screenshot*.png
+/Screen Shot*.png
+
 # vercel
 .vercel
 
