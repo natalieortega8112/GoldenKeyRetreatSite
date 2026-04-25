@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display, Allura } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
@@ -27,6 +27,27 @@ export const metadata: Metadata = {
   title: "Golden Key Retreats | Clean, Elevated Stays in Miami",
   description:
     "Golden Key Retreats by Natalie Ortega — clean, elevated short-term stays in Miami and Fort Lauderdale, built for comfort, simplicity, and trust.",
+  applicationName: "Golden Key Retreats",
+  appleWebApp: {
+    capable: true,
+    title: "Golden Key",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: [{ url: "/favicon-32.png", sizes: "32x32", type: "image/png" }],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#c9a24b",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
