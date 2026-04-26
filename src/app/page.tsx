@@ -20,7 +20,7 @@ export default async function Home() {
       <InfoCards />
       <Expect />
       <Standards />
-      <KeyDivider className="my-2 sm:my-4" width="md" />
+      <KeyDivider className="my-2 sm:my-4" />
       <Reviews />
       <FeaturedUnits units={units} />
       <StayTypes />
