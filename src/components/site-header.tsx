@@ -3,24 +3,50 @@ import { Logo } from "./logo";
 
 export function SiteHeader() {
   return (
-    <header className="w-full border-b border-line/70 bg-cream/95 backdrop-blur sticky top-0 z-40">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 h-20 sm:h-32 flex items-center justify-between gap-4">
-        <Logo variant="header" />
-        <nav className="flex items-center gap-5 sm:gap-10 text-sm sm:text-base">
-          <Link
-            href="/units"
-            className="text-charcoal/90 hover:text-gold-deep transition-colors whitespace-nowrap"
-          >
-            Featured Units
-          </Link>
-          <Link
-            href="/contact"
-            className="text-charcoal/90 hover:text-gold-deep transition-colors"
-          >
-            Contact
-          </Link>
-        </nav>
+    <header className="w-full sticky top-0 z-40">
+      {/* 1. Thin gold accent bar */}
+      <div className="h-[3px] bg-gradient-to-r from-gold-soft via-gold to-gold-deep" />
+
+      <div className="bg-cream/95 backdrop-blur border-b border-line/70">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 h-20 sm:h-32 flex items-center justify-between gap-4">
+          <Logo variant="header" />
+
+          <nav className="flex items-center gap-3 sm:gap-8 text-sm sm:text-base">
+            {/* 2. Animated gold underline on nav links */}
+            <NavLink href="/units">Featured Units</NavLink>
+            <NavLink href="/contact">Contact</NavLink>
+
+            {/* 3. Gold "Book a Stay" button */}
+            <Link
+              href="/units"
+              className="btn-gold inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium tracking-wide shadow-sm hover:shadow-md transition-shadow whitespace-nowrap"
+            >
+              Book a Stay
+            </Link>
+          </nav>
+        </div>
       </div>
     </header>
+  );
+}
+
+function NavLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className="relative text-charcoal/90 hover:text-gold-deep transition-colors whitespace-nowrap group"
+    >
+      <span>{children}</span>
+      <span
+        aria-hidden
+        className="absolute left-0 -bottom-1.5 h-[2px] w-0 bg-gold-deep transition-all duration-300 ease-out group-hover:w-full"
+      />
+    </Link>
   );
 }
