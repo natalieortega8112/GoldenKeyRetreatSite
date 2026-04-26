@@ -45,6 +45,42 @@ export const REVIEWS: Review[] = [
   },
 ];
 
+// Preview "Coming Soon" unit cards shown in the Featured Units carousel
+// when no real units exist yet. Replace with real units in /admin.
+export type PreviewUnit = {
+  neighborhood: string;
+  vibe: string; // 1-line teaser
+  cover: string; // path under /public
+};
+
+export const PREVIEW_UNITS: PreviewUnit[] = [
+  {
+    neighborhood: "Brickell",
+    vibe: "Skyline-view stays in the heart of Miami's financial district.",
+    cover: "/preview-brickell.png",
+  },
+  {
+    neighborhood: "South Beach",
+    vibe: "Steps from the sand, designed for sunlit weekends.",
+    cover: "/preview-south-beach.png",
+  },
+  {
+    neighborhood: "Coral Gables",
+    vibe: "Quiet, leafy retreats with old-Florida charm.",
+    cover: "/preview-coral-gables.png",
+  },
+  {
+    neighborhood: "Wynwood",
+    vibe: "Art-district stays walking distance to galleries and cafés.",
+    cover: "/preview-wynwood.png",
+  },
+  {
+    neighborhood: "Miami Beach",
+    vibe: "Coastal escapes with breezy, modern interiors.",
+    cover: "/preview-miami-beach.png",
+  },
+];
+
 export type BookingPlatform = {
   name: string;
   url: string | null; // null means "not set up yet" — will show as Coming soon
