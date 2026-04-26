@@ -4,8 +4,8 @@ import Image from "next/image";
 type LogoSize = "header" | "header-lg" | "footer";
 
 const sizes: Record<LogoSize, { className: string }> = {
-  header: { className: "h-28 sm:h-56" },
-  "header-lg": { className: "h-32 sm:h-64" },
+  header: { className: "h-14 sm:h-28" },
+  "header-lg": { className: "h-16 sm:h-32" },
   footer: { className: "h-12 sm:h-14" },
 };
 

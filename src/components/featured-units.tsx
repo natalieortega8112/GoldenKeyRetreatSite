@@ -7,7 +7,7 @@ export function FeaturedUnits({ units }: { units: Unit[] }) {
   return (
     <section
       id="featured-units"
-      className="relative bg-ink text-cream overflow-hidden scroll-mt-72"
+      className="relative bg-ink text-cream overflow-hidden scroll-mt-36"
     >
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(201,162,75,0.18),transparent_60%)]" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 py-12 sm:py-16">
