@@ -41,11 +41,11 @@ export default function ContactPage() {
             value="Miami, Florida"
           />
           <div className="rounded-xl bg-cream-soft ring-1 ring-line p-5">
-            <p className="signature text-3xl text-gold-deep leading-none mb-2">
+            <p className="font-serif italic text-3xl text-gold-deep leading-none mb-2">
               Natalie Ortega
             </p>
-            <p className="text-xs uppercase tracking-[0.2em] text-charcoal/70">
-              Owner & Host · Golden Key Retreats
+            <p className="text-xs uppercase tracking-[0.25em] text-charcoal/70">
+              Property Manager · Golden Key Retreats
             </p>
           </div>
         </aside>

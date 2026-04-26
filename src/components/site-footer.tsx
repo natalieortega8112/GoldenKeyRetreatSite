@@ -3,14 +3,17 @@ import { Mail, Phone, MapPin } from "lucide-react";
 
 export function SiteFooter() {
   return (
-    <footer className="bg-cream-soft border-t border-line/80">
-      <div className="mx-auto max-w-7xl px-6 lg:px-10 py-10 grid gap-8 md:grid-cols-3 items-center">
+    <footer className="bg-cream-soft border-t-2 border-gold/40">
+      <div className="mx-auto max-w-7xl px-6 lg:px-10 py-12 grid gap-10 md:grid-cols-3 items-center">
         <div className="flex md:justify-start justify-center">
           <Logo variant="footer" />
         </div>
-        <div className="flex justify-center text-center">
-          <span className="signature text-3xl sm:text-4xl text-gold-deep leading-none">
+        <div className="flex flex-col items-center text-center">
+          <span className="font-serif italic text-3xl sm:text-4xl text-gold-deep leading-none">
             Natalie Ortega
+          </span>
+          <span className="mt-3 text-[10px] sm:text-xs uppercase tracking-[0.32em] text-charcoal/70">
+            Property Manager
           </span>
         </div>
         <div className="flex flex-col items-center md:items-end gap-1.5 text-sm text-charcoal">

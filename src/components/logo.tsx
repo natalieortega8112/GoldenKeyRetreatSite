@@ -6,7 +6,7 @@ type LogoSize = "header" | "header-lg" | "footer";
 const sizes: Record<LogoSize, { className: string }> = {
   header: { className: "h-14 sm:h-28" },
   "header-lg": { className: "h-16 sm:h-32" },
-  footer: { className: "h-12 sm:h-14" },
+  footer: { className: "h-16 sm:h-24" },
 };
 
 export function Logo({
