@@ -1,20 +1,22 @@
 type Props = {
   className?: string;
+  /** "light" for use on cream backgrounds, "dark" for cream-soft. */
+  tone?: "light" | "dark";
 };
 
-/**
- * Decorative gold divider — a continuous thin gold line spanning the full
- * section width with an ornate fleur-de-lis flourish centered on top.
- */
-export function KeyDivider({ className = "" }: Props) {
+export function KeyDivider({ className = "", tone = "light" }: Props) {
+  const lineColor =
+    tone === "dark"
+      ? "from-transparent via-gold/70 to-gold-deep"
+      : "from-transparent via-gold/60 to-gold-deep";
+
   return (
-    <div
-      className={`w-full flex items-center ${className}`}
-      aria-hidden
-    >
-      <span className="flex-1 h-px bg-gradient-to-r from-transparent via-gold/55 to-gold-deep" />
+    <div className={`w-full flex items-center ${className}`} aria-hidden>
+      <span className={`flex-1 h-0.5 bg-gradient-to-r ${lineColor}`} />
       <Flourish />
-      <span className="flex-1 h-px bg-gradient-to-l from-transparent via-gold/55 to-gold-deep" />
+      <span
+        className={`flex-1 h-0.5 bg-gradient-to-l ${lineColor}`}
+      />
     </div>
   );
 }
@@ -22,10 +24,10 @@ export function KeyDivider({ className = "" }: Props) {
 function Flourish() {
   return (
     <svg
-      width="56"
-      height="36"
-      viewBox="0 0 56 36"
-      className="shrink-0 -mx-px"
+      width="68"
+      height="44"
+      viewBox="0 0 68 44"
+      className="shrink-0 -mx-px drop-shadow-sm"
       aria-hidden
     >
       <defs>
@@ -36,37 +38,45 @@ function Flourish() {
         </linearGradient>
       </defs>
 
-      <g fill="url(#kd-flourish)" stroke="url(#kd-flourish)" strokeWidth="0.4">
-        {/* Center upright petal pointed at top */}
-        <path d="M28 4
-                 C 26 10, 26 16, 28 22
-                 C 30 16, 30 10, 28 4 Z" />
+      <g
+        fill="url(#kd-flourish)"
+        stroke="url(#kd-flourish)"
+        strokeWidth="0.6"
+      >
+        {/* Center upright petal */}
+        <path
+          d="M34 4
+             C 31 12, 31 20, 34 28
+             C 37 20, 37 12, 34 4 Z"
+        />
 
-        {/* Tiny dot at the very top of the center petal */}
-        <circle cx="28" cy="3" r="1.4" />
+        {/* Crowning dot */}
+        <circle cx="34" cy="3" r="1.8" />
 
         {/* Left curling petal */}
-        <path d="M28 22
-                 C 22 20, 17 16, 14 11
-                 C 16 16, 19 20, 24 23
-                 C 21 22, 18 22, 16 23
-                 C 19 24, 23 24, 26 23 Z" />
+        <path
+          d="M34 27
+             C 26 25, 20 20, 17 13
+             C 19 20, 23 25, 29 28
+             C 25 27, 21 27, 18 28
+             C 22 30, 27 30, 31 28 Z"
+        />
 
-        {/* Right curling petal (mirror of left) */}
-        <path d="M28 22
-                 C 34 20, 39 16, 42 11
-                 C 40 16, 37 20, 32 23
-                 C 35 22, 38 22, 40 23
-                 C 37 24, 33 24, 30 23 Z" />
+        {/* Right curling petal */}
+        <path
+          d="M34 27
+             C 42 25, 48 20, 51 13
+             C 49 20, 45 25, 39 28
+             C 43 27, 47 27, 50 28
+             C 46 30, 41 30, 37 28 Z"
+        />
 
-        {/* Horizontal banded base ribbon */}
-        <path d="M16 24
-                 Q 28 21 40 24
-                 Q 28 27 16 24 Z" />
+        {/* Banded base ribbon */}
+        <path d="M19 30 Q 34 26 49 30 Q 34 34 19 30 Z" />
 
-        {/* Two small flanking dots */}
-        <circle cx="13" cy="24" r="1.1" />
-        <circle cx="43" cy="24" r="1.1" />
+        {/* Flanking dots */}
+        <circle cx="15" cy="30" r="1.4" />
+        <circle cx="53" cy="30" r="1.4" />
       </g>
     </svg>
   );
