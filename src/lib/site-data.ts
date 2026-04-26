@@ -9,6 +9,20 @@ import {
   Headphones,
 } from "lucide-react";
 
+export type BookingPlatform = {
+  name: string;
+  url: string | null; // null means "not set up yet" — will show as Coming soon
+  accent: string; // brand color, used as small swatch in the menu
+};
+
+// Edit these URLs as you go live on each platform.
+// Use the URL of your host profile page or a specific listing.
+export const BOOKING_PLATFORMS: BookingPlatform[] = [
+  { name: "Airbnb", url: null, accent: "#FF5A5F" },
+  { name: "VRBO", url: null, accent: "#1668E3" },
+  { name: "Booking.com", url: null, accent: "#003580" },
+];
+
 export const HOMEPAGE_SERVICES = [
   {
     icon: SprayCan,

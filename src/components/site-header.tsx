@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "./logo";
+import { BookingMenu } from "./booking-menu";
 
 export function SiteHeader() {
   return (
@@ -14,12 +15,7 @@ export function SiteHeader() {
             <NavLink href="/units">Featured Units</NavLink>
             <NavLink href="/contact">Contact</NavLink>
 
-            <Link
-              href="/units"
-              className="btn-gold inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wide shadow-sm hover:shadow-md transition-shadow whitespace-nowrap"
-            >
-              Book a Stay
-            </Link>
+            <BookingMenu />
           </nav>
         </div>
       </div>
