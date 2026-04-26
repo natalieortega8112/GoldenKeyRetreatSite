@@ -3,10 +3,16 @@ import Image from "next/image";
 
 type LogoSize = "header" | "header-lg" | "footer";
 
-const sizes: Record<LogoSize, { className: string }> = {
-  header: { className: "h-14 sm:h-28" },
-  "header-lg": { className: "h-16 sm:h-32" },
-  footer: { className: "h-14 sm:h-28" },
+const HEADER_SRC = "/golden-key-retreats-logo.png";
+const FOOTER_SRC = "/golden-key-retreats-logo-footer.png";
+
+const variants: Record<
+  LogoSize,
+  { className: string; src: string; w: number; h: number }
+> = {
+  header: { className: "h-14 sm:h-28", src: HEADER_SRC, w: 2166, h: 726 },
+  "header-lg": { className: "h-16 sm:h-32", src: HEADER_SRC, w: 2166, h: 726 },
+  footer: { className: "h-14 sm:h-28", src: FOOTER_SRC, w: 2167, h: 726 },
 };
 
 export function Logo({
@@ -16,14 +22,15 @@ export function Logo({
   variant?: LogoSize;
   asLink?: boolean;
 }) {
+  const v = variants[variant];
   const inner = (
     <Image
-      src="/golden-key-retreats-logo.png"
+      src={v.src}
       alt="Golden Key Retreats"
-      width={2166}
-      height={726}
+      width={v.w}
+      height={v.h}
       priority={variant !== "footer"}
-      className={`${sizes[variant].className} w-auto select-none`}
+      className={`${v.className} w-auto select-none`}
     />
   );
 
