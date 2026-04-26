@@ -3,6 +3,7 @@ import { Inter, Playfair_Display, Allura } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { MobileBookFab } from "@/components/mobile-book-fab";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -23,7 +24,11 @@ const allura = Allura({
   display: "swap",
 });
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://golden-key-retreats.vercel.app";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Golden Key Retreats | Clean, Elevated Stays in Miami",
   description:
     "Golden Key Retreats by Natalie Ortega — clean, elevated short-term stays in Miami and Fort Lauderdale, built for comfort, simplicity, and trust.",
@@ -40,6 +45,29 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
     shortcut: [{ url: "/favicon-32.png", sizes: "32x32", type: "image/png" }],
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Golden Key Retreats",
+    title: "Golden Key Retreats | Clean, Elevated Stays in Miami",
+    description:
+      "Clean, elevated short-term stays in Miami and Fort Lauderdale by Natalie Ortega.",
+    url: SITE_URL,
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Golden Key Retreats — Clean, elevated stays in Miami & Fort Lauderdale",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Golden Key Retreats | Clean, Elevated Stays in Miami",
+    description:
+      "Clean, elevated short-term stays in Miami and Fort Lauderdale.",
+    images: ["/og-image.png"],
   },
 };
 
@@ -64,6 +92,7 @@ export default function RootLayout({
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />
+        <MobileBookFab />
       </body>
     </html>
   );

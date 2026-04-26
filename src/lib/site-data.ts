@@ -9,6 +9,42 @@ import {
   Headphones,
 } from "lucide-react";
 
+export type Review = {
+  quote: string;
+  guest: string; // e.g. "Sarah M."
+  location: string; // e.g. "Visiting from Atlanta"
+  stay: string; // e.g. "Brickell Stay · Mar 2026"
+  rating: 1 | 2 | 3 | 4 | 5;
+};
+
+// Edit / replace these as real reviews come in.
+export const REVIEWS: Review[] = [
+  {
+    quote:
+      "The space was spotless when we arrived and felt like a true escape. Natalie was responsive and made check-in effortless — we'll be back.",
+    guest: "Sarah M.",
+    location: "Visiting from Atlanta",
+    stay: "Family weekend · 2 nights",
+    rating: 5,
+  },
+  {
+    quote:
+      "Easily the cleanest short-term rental we've stayed in. Thoughtful touches everywhere and a quiet workspace that made remote days easy.",
+    guest: "James & Carolina",
+    location: "Visiting from New York",
+    stay: "Work trip · 5 nights",
+    rating: 5,
+  },
+  {
+    quote:
+      "Felt like a hotel without losing the comfort of a home. Communication was prompt and everything was exactly as described.",
+    guest: "Daniela R.",
+    location: "Visiting from Bogotá",
+    stay: "Anniversary stay · 3 nights",
+    rating: 5,
+  },
+];
+
 export type BookingPlatform = {
   name: string;
   url: string | null; // null means "not set up yet" — will show as Coming soon

@@ -2,6 +2,7 @@ import { Hero } from "@/components/hero";
 import { InfoCards } from "@/components/info-cards";
 import { Expect } from "@/components/expect";
 import { Standards } from "@/components/standards";
+import { Reviews } from "@/components/reviews";
 import { FeaturedUnits } from "@/components/featured-units";
 import { StayTypes } from "@/components/stay-types";
 import { Services } from "@/components/services";
@@ -18,6 +19,7 @@ export default async function Home() {
       <InfoCards />
       <Expect />
       <Standards />
+      <Reviews />
       <FeaturedUnits units={units} />
       <StayTypes />
       <Services />
