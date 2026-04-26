@@ -48,7 +48,7 @@ export const HOMEPAGE_SERVICES = [
   {
     icon: Headphones,
     title: "Direct Host Support",
-    body: "Reach Natalie directly throughout your stay for anything you need.",
+    body: "Contact your host directly throughout your stay for prompt assistance with anything you may need.",
   },
 ];
 
