@@ -22,7 +22,7 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-b from-cream/40 via-transparent to-cream/60" />
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 pt-12 sm:pt-20 lg:pt-28 pb-16 sm:pb-24 lg:pb-32">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 pt-8 sm:pt-12 lg:pt-16 pb-10 sm:pb-14 lg:pb-20">
         <div className="max-w-2xl">
           <p className="hero-eyebrow flex items-center gap-3 sm:gap-4 mb-5 sm:mb-6 text-xs sm:text-base font-bold uppercase">
             <span
