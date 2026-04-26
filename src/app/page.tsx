@@ -17,21 +17,14 @@ export default async function Home() {
   return (
     <>
       <Hero />
-      <KeyDivider className="my-2 sm:my-3" />
       <InfoCards />
-      <KeyDivider className="my-2 sm:my-3" />
       <Expect />
-      <KeyDivider className="my-2 sm:my-3" />
       <Standards />
-      <KeyDivider className="my-2 sm:my-3" />
+      <KeyDivider className="my-2 sm:my-4" />
       <Reviews />
-      <KeyDivider className="my-2 sm:my-3" />
       <FeaturedUnits units={units} />
-      <KeyDivider className="my-2 sm:my-3" />
       <StayTypes />
-      <KeyDivider className="my-2 sm:my-3" />
       <Services />
-      <KeyDivider className="my-2 sm:my-3" />
       <Rules />
     </>
   );
