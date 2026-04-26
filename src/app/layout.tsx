@@ -49,9 +49,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Golden Key Retreats",
-    title: "Golden Key Retreats | Clean, Elevated Stays in Miami",
-    description:
-      "Clean, elevated short-term stays in Miami and Fort Lauderdale by Natalie Ortega.",
+    title: "Clean, Elevated Stays in Miami",
+    description: "Luxury stays in Miami & Fort Lauderdale.",
     url: SITE_URL,
     images: [
       {
@@ -64,9 +63,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Golden Key Retreats | Clean, Elevated Stays in Miami",
-    description:
-      "Clean, elevated short-term stays in Miami and Fort Lauderdale.",
+    title: "Clean, Elevated Stays in Miami",
+    description: "Luxury stays in Miami & Fort Lauderdale.",
     images: ["/og-image.png"],
   },
 };
