@@ -12,7 +12,10 @@ export type Unit = {
   pricePerNight: number | null;
   amenities: string[];
   services: string[];
-  bookingUrl: string | null;
+  bookingUrl: string | null; // legacy generic booking link (kept for backwards compat)
+  airbnbUrl: string | null;
+  vrboUrl: string | null;
+  bookingComUrl: string | null;
   createdAt: string;
 };
 

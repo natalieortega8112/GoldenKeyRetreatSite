@@ -82,11 +82,16 @@ async function buildInputFromForm(formData: FormData): Promise<UnitInput> {
     pricePerNight: parseInt(formData.get("pricePerNight")),
     amenities: parseList(formData.get("amenities")),
     services: parseList(formData.get("services")),
-    bookingUrl: (() => {
-      const v = String(formData.get("bookingUrl") || "").trim();
-      return v || null;
-    })(),
+    bookingUrl: nullable(formData.get("bookingUrl")),
+    airbnbUrl: nullable(formData.get("airbnbUrl")),
+    vrboUrl: nullable(formData.get("vrboUrl")),
+    bookingComUrl: nullable(formData.get("bookingComUrl")),
   };
+}
+
+function nullable(value: FormDataEntryValue | null): string | null {
+  const v = String(value || "").trim();
+  return v || null;
 }
 
 export async function createUnitAction(formData: FormData) {

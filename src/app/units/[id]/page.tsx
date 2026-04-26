@@ -12,6 +12,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { getUnit } from "@/lib/db";
+import type { Unit } from "@/lib/types";
 
 export const revalidate = 0;
 
@@ -121,24 +122,7 @@ export default async function UnitDetailPage({
             )}
           </div>
 
-          <div className="flex flex-wrap gap-3">
-            {unit.bookingUrl && (
-              <a
-                href={unit.bookingUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-gold inline-flex items-center gap-2 px-6 py-3 rounded-md text-sm font-medium"
-              >
-                Book This Unit <ExternalLink className="w-4 h-4" />
-              </a>
-            )}
-            <Link
-              href="/contact"
-              className="btn-outline inline-flex items-center gap-2 px-6 py-3 rounded-md text-sm font-medium"
-            >
-              Ask About This Stay
-            </Link>
-          </div>
+          <UnitBookingPanel unit={unit} />
         </div>
       </div>
 
@@ -167,6 +151,73 @@ export default async function UnitDetailPage({
           />
         )}
       </div>
+    </div>
+  );
+}
+
+function UnitBookingPanel({ unit }: { unit: Unit }) {
+  const platforms = [
+    {
+      name: "Airbnb",
+      url: unit.airbnbUrl,
+      bg: "bg-[#FF5A5F] hover:bg-[#e94e53]",
+    },
+    {
+      name: "VRBO",
+      url: unit.vrboUrl,
+      bg: "bg-[#1668E3] hover:bg-[#125ac9]",
+    },
+    {
+      name: "Booking.com",
+      url: unit.bookingComUrl,
+      bg: "bg-[#003580] hover:bg-[#002966]",
+    },
+  ];
+  const anyAvailable = platforms.some((p) => p.url);
+
+  return (
+    <div className="rounded-xl bg-cream-soft ring-1 ring-line p-5 sm:p-6">
+      <div className="text-[10px] sm:text-xs tracking-[0.28em] uppercase text-gold-deep font-bold mb-1.5">
+        Book This Stay
+      </div>
+      <p className="text-sm text-charcoal/75 mb-4">
+        {anyAvailable
+          ? "Choose your preferred platform — you'll be taken straight to this unit's listing."
+          : "Listings going live soon. Reach out below and we'll send the link directly."}
+      </p>
+      <div className="grid sm:grid-cols-3 gap-2.5">
+        {platforms.map((p) =>
+          p.url ? (
+            <a
+              key={p.name}
+              href={p.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${p.bg} text-white inline-flex items-center justify-center gap-2 px-4 py-3 rounded-md text-sm font-semibold tracking-wide transition-colors shadow-sm`}
+            >
+              {p.name}
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          ) : (
+            <div
+              key={p.name}
+              aria-disabled
+              className="border border-line bg-white text-muted inline-flex flex-col items-center justify-center gap-0.5 px-4 py-3 rounded-md text-sm font-medium"
+            >
+              <span>{p.name}</span>
+              <span className="text-[10px] uppercase tracking-wider text-gold-deep/70">
+                Coming Soon
+              </span>
+            </div>
+          ),
+        )}
+      </div>
+      <Link
+        href="/contact"
+        className="mt-4 block text-center text-sm text-gold-deep hover:text-ink underline underline-offset-4"
+      >
+        Or ask Natalie directly
+      </Link>
     </div>
   );
 }

@@ -58,9 +58,16 @@ async function ensureSchema() {
           amenities JSONB NOT NULL DEFAULT '[]'::jsonb,
           services JSONB NOT NULL DEFAULT '[]'::jsonb,
           booking_url TEXT,
+          airbnb_url TEXT,
+          vrbo_url TEXT,
+          booking_com_url TEXT,
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
       `;
+      // Idempotent migrations for older deployments
+      await sql`ALTER TABLE units ADD COLUMN IF NOT EXISTS airbnb_url TEXT`;
+      await sql`ALTER TABLE units ADD COLUMN IF NOT EXISTS vrbo_url TEXT`;
+      await sql`ALTER TABLE units ADD COLUMN IF NOT EXISTS booking_com_url TEXT`;
     })();
   }
   await initPromise;
@@ -81,6 +88,9 @@ type UnitRow = {
   amenities: string[] | null;
   services: string[] | null;
   booking_url: string | null;
+  airbnb_url: string | null;
+  vrbo_url: string | null;
+  booking_com_url: string | null;
   created_at: string | Date;
 };
 
@@ -101,6 +111,9 @@ function rowToUnit(row: UnitRow): Unit {
     amenities: row.amenities ?? [],
     services: row.services ?? [],
     bookingUrl: row.booking_url,
+    airbnbUrl: row.airbnb_url,
+    vrboUrl: row.vrbo_url,
+    bookingComUrl: row.booking_com_url,
     createdAt:
       created instanceof Date ? created.toISOString() : String(created),
   };
@@ -146,7 +159,8 @@ export async function createUnit(input: UnitInput): Promise<Unit> {
     INSERT INTO units (
       id, name, location, short_description, full_description,
       cover_image_url, photo_urls, bedrooms, bathrooms, max_guests,
-      price_per_night, amenities, services, booking_url
+      price_per_night, amenities, services, booking_url,
+      airbnb_url, vrbo_url, booking_com_url
     ) VALUES (
       ${id},
       ${input.name},
@@ -161,7 +175,10 @@ export async function createUnit(input: UnitInput): Promise<Unit> {
       ${input.pricePerNight},
       ${sql.json(input.amenities)},
       ${sql.json(input.services)},
-      ${input.bookingUrl}
+      ${input.bookingUrl},
+      ${input.airbnbUrl},
+      ${input.vrboUrl},
+      ${input.bookingComUrl}
     )
   `;
   const created = await getUnit(id);
@@ -190,7 +207,10 @@ export async function updateUnit(
       price_per_night = ${input.pricePerNight},
       amenities = ${sql.json(input.amenities)},
       services = ${sql.json(input.services)},
-      booking_url = ${input.bookingUrl}
+      booking_url = ${input.bookingUrl},
+      airbnb_url = ${input.airbnbUrl},
+      vrbo_url = ${input.vrboUrl},
+      booking_com_url = ${input.bookingComUrl}
     WHERE id = ${id}
   `;
   return getUnit(id);

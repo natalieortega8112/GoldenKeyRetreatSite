@@ -97,11 +97,30 @@ export function UnitForm({ initial, action, submitLabel }: Props) {
               defaultValue={initial?.pricePerNight?.toString() ?? ""}
             />
           </div>
+        </Card>
+
+        <Card title="Booking Links">
+          <p className="text-xs text-muted -mt-2">
+            Paste this unit&rsquo;s URL on each platform you list it. Empty
+            fields show as &ldquo;Coming Soon&rdquo; on the unit page.
+          </p>
           <Field
-            label="Booking URL (Airbnb / VRBO link)"
-            name="bookingUrl"
-            placeholder="https://www.airbnb.com/..."
-            defaultValue={initial?.bookingUrl ?? ""}
+            label="Airbnb URL"
+            name="airbnbUrl"
+            placeholder="https://www.airbnb.com/rooms/..."
+            defaultValue={initial?.airbnbUrl ?? ""}
+          />
+          <Field
+            label="VRBO URL"
+            name="vrboUrl"
+            placeholder="https://www.vrbo.com/..."
+            defaultValue={initial?.vrboUrl ?? ""}
+          />
+          <Field
+            label="Booking.com URL"
+            name="bookingComUrl"
+            placeholder="https://www.booking.com/hotel/..."
+            defaultValue={initial?.bookingComUrl ?? ""}
           />
         </Card>
 
