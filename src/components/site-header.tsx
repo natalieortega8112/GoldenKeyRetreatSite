@@ -4,22 +4,19 @@ import { Logo } from "./logo";
 export function SiteHeader() {
   return (
     <header className="w-full sticky top-0 z-40">
-      {/* 1. Thin gold accent bar */}
       <div className="h-[3px] bg-gradient-to-r from-gold-soft via-gold to-gold-deep" />
 
       <div className="bg-cream/95 backdrop-blur border-b border-line/70">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 h-20 sm:h-32 flex items-center justify-between gap-4">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 h-24 sm:h-36 flex items-center justify-between gap-4">
           <Logo variant="header" />
 
-          <nav className="flex items-center gap-3 sm:gap-8 text-sm sm:text-base">
-            {/* 2. Animated gold underline on nav links */}
+          <nav className="flex items-center gap-3 sm:gap-8 text-sm sm:text-base font-bold tracking-wide">
             <NavLink href="/units">Featured Units</NavLink>
             <NavLink href="/contact">Contact</NavLink>
 
-            {/* 3. Gold "Book a Stay" button */}
             <Link
               href="/units"
-              className="btn-gold inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium tracking-wide shadow-sm hover:shadow-md transition-shadow whitespace-nowrap"
+              className="btn-gold inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wide shadow-sm hover:shadow-md transition-shadow whitespace-nowrap"
             >
               Book a Stay
             </Link>
@@ -40,7 +37,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className="relative text-charcoal/90 hover:text-gold-deep transition-colors whitespace-nowrap group"
+      className="relative text-gold-deep hover:text-ink transition-colors whitespace-nowrap group"
     >
       <span>{children}</span>
       <span
