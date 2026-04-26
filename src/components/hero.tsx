@@ -6,8 +6,18 @@ export function Hero() {
     <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 pt-8 sm:pt-12 lg:pt-20 pb-10 sm:pb-12">
       <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
         <div>
-          <p className="text-[10px] sm:text-xs tracking-[0.32em] uppercase text-gold-deep mb-4 sm:mb-5">
-            Welcome to Golden Key Retreats
+          <p className="hero-eyebrow flex items-center gap-3 sm:gap-4 mb-5 sm:mb-6 text-xs sm:text-base font-bold uppercase">
+            <span
+              aria-hidden
+              className="h-px w-6 sm:w-10 bg-gradient-to-r from-transparent to-gold"
+            />
+            <span className="gold-gradient-text whitespace-nowrap">
+              Welcome to Golden Key Retreats
+            </span>
+            <span
+              aria-hidden
+              className="h-px flex-1 sm:w-10 sm:flex-none bg-gradient-to-l from-transparent to-gold"
+            />
           </p>
           <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-[1.1] text-ink mb-5 sm:mb-6">
             Clean, elevated stays

@@ -79,3 +79,39 @@ h1, h2, h3, h4 {
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--gkr-gold-soft), transparent);
 }
+
+.gold-gradient-text {
+  background: linear-gradient(
+    90deg,
+    var(--gkr-gold-soft) 0%,
+    var(--gkr-gold) 45%,
+    var(--gkr-gold-deep) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes hero-eyebrow-in {
+  from {
+    opacity: 0;
+    letter-spacing: 0.05em;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0.32em;
+    transform: translateY(0);
+  }
+}
+
+.hero-eyebrow {
+  animation: hero-eyebrow-in 1100ms cubic-bezier(0.2, 0.65, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-eyebrow {
+    animation: none;
+  }
+}
