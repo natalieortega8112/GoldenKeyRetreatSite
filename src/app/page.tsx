@@ -1,5 +1,4 @@
 import { Hero } from "@/components/hero";
-import { InfoCards } from "@/components/info-cards";
 import { Expect } from "@/components/expect";
 import { Standards } from "@/components/standards";
 import { KeyDivider } from "@/components/key-divider";
@@ -17,7 +16,6 @@ export default async function Home() {
   return (
     <>
       <Hero />
-      <InfoCards />
       <Expect />
       <Standards />
       <KeyDivider className="my-2 sm:my-4" />
