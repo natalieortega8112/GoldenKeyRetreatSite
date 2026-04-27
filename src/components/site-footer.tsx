@@ -1,4 +1,4 @@
-import { Logo } from "./logo";
+import Image from "next/image";
 import {
   Mail,
   Phone,
@@ -25,8 +25,27 @@ export function SiteFooter() {
       {/* Top gold accent bar */}
       <div className="h-[3px] bg-gradient-to-r from-gold-soft via-gold to-gold-deep" />
 
-      {/* Subtle palm-leaf atmosphere */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.06]" aria-hidden>
+      {/* Big gold logo watermark behind everything */}
+      <div
+        className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden"
+        aria-hidden
+      >
+        <Image
+          src="/logo-watermark.png"
+          alt=""
+          width={1400}
+          height={467}
+          sizes="100vw"
+          className="w-[140%] sm:w-[110%] max-w-none opacity-[0.07] sm:opacity-[0.09] select-none"
+          priority={false}
+        />
+      </div>
+
+      {/* Subtle palm-leaf atmosphere on top of watermark */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.05]"
+        aria-hidden
+      >
         <svg
           className="w-full h-full"
           preserveAspectRatio="none"
@@ -41,7 +60,7 @@ export function SiteFooter() {
       </div>
 
       {/* Trust signal bar */}
-      <div className="relative border-b border-gold/20 bg-black/20">
+      <div className="relative border-b border-gold/20 bg-black/30 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 py-4 flex flex-wrap justify-center sm:justify-between gap-x-6 gap-y-3 items-center">
           {TRUST_BADGES.map(({ icon: Icon, label }) => (
             <div
@@ -55,22 +74,27 @@ export function SiteFooter() {
         </div>
       </div>
 
-      {/* Main footer — 2 columns */}
-      <div className="relative mx-auto max-w-7xl px-6 lg:px-10 py-12 sm:py-14 grid gap-10 lg:gap-14 md:grid-cols-2 items-start">
+      {/* Main footer — 2 columns, no corner logo */}
+      <div className="relative mx-auto max-w-7xl px-6 lg:px-10 py-14 sm:py-16 grid gap-10 lg:gap-14 md:grid-cols-2 items-start">
         {/* Brand block */}
         <div>
-          <Logo variant="footer" />
-          <p className="mt-5 text-sm text-cream/70 max-w-md leading-relaxed">
-            Boutique short-term stays in Miami &amp; Fort Lauderdale —
-            handpicked, hand-prepared, and personally hosted.
+          <p className="text-[10px] uppercase tracking-[0.32em] text-gold-soft mb-3">
+            About Us
+          </p>
+          <h3 className="font-serif text-2xl sm:text-3xl text-cream leading-snug max-w-md">
+            Boutique short-term stays in Miami &amp; Fort Lauderdale.
+          </h3>
+          <p className="mt-4 text-sm text-cream/70 max-w-md leading-relaxed">
+            Handpicked, hand-prepared, and personally hosted by Natalie Ortega.
+            Every detail tuned for comfort and trust.
           </p>
           <a
             href="https://www.instagram.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-5 inline-flex items-center gap-2 text-sm text-cream/85 hover:text-gold transition-colors"
+            className="mt-6 inline-flex items-center gap-2 text-sm text-cream/85 hover:text-gold transition-colors"
           >
-            <span className="w-8 h-8 rounded-full bg-gold/15 flex items-center justify-center text-gold ring-1 ring-gold/30">
+            <span className="w-9 h-9 rounded-full bg-gold/15 flex items-center justify-center text-gold ring-1 ring-gold/30">
               <InstagramIcon />
             </span>
             Follow on Instagram
@@ -121,7 +145,7 @@ export function SiteFooter() {
       </div>
 
       {/* Bottom copyright bar */}
-      <div className="relative border-t border-gold/15">
+      <div className="relative border-t border-gold/15 bg-black/20">
         <div className="mx-auto max-w-7xl px-6 lg:px-10 py-4 flex flex-col sm:flex-row gap-2 justify-between items-center text-[11px] text-cream/50">
           <span>
             © {new Date().getFullYear()} Golden Key Retreats. All rights reserved.
