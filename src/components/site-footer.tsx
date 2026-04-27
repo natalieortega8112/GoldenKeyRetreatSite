@@ -27,7 +27,12 @@ export function SiteFooter() {
 
       {/* Subtle palm-leaf atmosphere */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.06]" aria-hidden>
-        <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          className="w-full h-full"
+          preserveAspectRatio="none"
+          viewBox="0 0 1200 400"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <g fill="#c9a24b">
             <path d="M -40 380 Q 60 280 130 180 Q 110 260 50 340 Z" />
             <path d="M 1240 380 Q 1140 280 1070 180 Q 1090 260 1150 340 Z" />
@@ -50,14 +55,14 @@ export function SiteFooter() {
         </div>
       </div>
 
-      {/* Main footer grid */}
-      <div className="relative mx-auto max-w-7xl px-6 lg:px-10 py-12 sm:py-14 grid gap-10 md:grid-cols-12 items-start">
+      {/* Main footer — 2 columns */}
+      <div className="relative mx-auto max-w-7xl px-6 lg:px-10 py-12 sm:py-14 grid gap-10 lg:gap-14 md:grid-cols-2 items-start">
         {/* Brand block */}
-        <div className="md:col-span-5">
+        <div>
           <div className="bg-cream rounded-lg inline-block p-2.5 sm:p-3">
             <Logo variant="footer" />
           </div>
-          <p className="mt-4 text-sm text-cream/70 max-w-sm leading-relaxed">
+          <p className="mt-5 text-sm text-cream/70 max-w-md leading-relaxed">
             Boutique short-term stays in Miami &amp; Fort Lauderdale —
             handpicked, hand-prepared, and personally hosted.
           </p>
@@ -74,44 +79,42 @@ export function SiteFooter() {
           </a>
         </div>
 
-        {/* Centered ornate key + signature */}
-        <div className="md:col-span-3 flex flex-col items-center text-center">
-          <KeyEmblem />
-          <p className="font-serif italic text-2xl sm:text-3xl text-gold-soft leading-none mt-3">
+        {/* Host + contact block */}
+        <div className="md:justify-self-end md:text-right max-w-md md:ml-auto">
+          <p className="text-[10px] uppercase tracking-[0.32em] text-gold-soft mb-2">
+            Your Host
+          </p>
+          <p className="font-serif italic text-3xl sm:text-4xl text-gold-soft leading-none">
             Natalie Ortega
           </p>
-          <p className="mt-2 text-[10px] sm:text-[11px] uppercase tracking-[0.32em] text-cream/60">
-            Property Manager
+          <p className="mt-2 text-[11px] uppercase tracking-[0.28em] text-cream/60">
+            Property Manager · Golden Key Retreats
           </p>
-        </div>
 
-        {/* Contact block */}
-        <div className="md:col-span-4 flex flex-col gap-2.5 text-sm md:items-end">
-          <p className="text-[10px] uppercase tracking-[0.3em] text-gold-soft mb-1">
-            Get in Touch
-          </p>
-          <a
-            href="mailto:goldenkeyretreats@gmail.com"
-            className="flex items-center gap-2.5 text-cream/90 hover:text-gold transition-colors break-all"
-          >
-            <Mail className="w-4 h-4 text-gold shrink-0" />
-            goldenkeyretreats@gmail.com
-          </a>
-          <a
-            href="tel:+13055109055"
-            className="flex items-center gap-2.5 text-cream/90 hover:text-gold transition-colors"
-          >
-            <Phone className="w-4 h-4 text-gold shrink-0" />
-            305-510-9055
-          </a>
-          <span className="flex items-center gap-2.5 text-cream/70">
-            <MapPin className="w-4 h-4 text-gold shrink-0" />
-            Miami, Florida
-          </span>
+          <div className="mt-6 space-y-2.5 text-sm md:flex md:flex-col md:items-end">
+            <a
+              href="mailto:goldenkeyretreats@gmail.com"
+              className="inline-flex items-center gap-2.5 text-cream/90 hover:text-gold transition-colors break-all"
+            >
+              <Mail className="w-4 h-4 text-gold shrink-0" />
+              goldenkeyretreats@gmail.com
+            </a>
+            <a
+              href="tel:+13055109055"
+              className="inline-flex items-center gap-2.5 text-cream/90 hover:text-gold transition-colors"
+            >
+              <Phone className="w-4 h-4 text-gold shrink-0" />
+              305-510-9055
+            </a>
+            <span className="inline-flex items-center gap-2.5 text-cream/70">
+              <MapPin className="w-4 h-4 text-gold shrink-0" />
+              Miami, Florida
+            </span>
+          </div>
 
           <Link
             href="/contact"
-            className="mt-3 inline-flex items-center gap-1.5 self-start md:self-end btn-gold px-4 py-2 rounded-full text-xs font-semibold tracking-wide shadow-md"
+            className="mt-6 inline-flex items-center gap-1.5 btn-gold px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide shadow-md"
           >
             <Sparkles className="w-3.5 h-3.5" />
             Send a Message
@@ -150,38 +153,6 @@ function InstagramIcon() {
       <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
       <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-    </svg>
-  );
-}
-
-function KeyEmblem() {
-  return (
-    <svg
-      width="64"
-      height="64"
-      viewBox="0 0 64 64"
-      className="drop-shadow-md"
-      aria-hidden
-    >
-      <defs>
-        <radialGradient id="keyEmblem" cx="50%" cy="40%" r="65%">
-          <stop offset="0%" stopColor="#f4dca0" />
-          <stop offset="55%" stopColor="#c9a24b" />
-          <stop offset="100%" stopColor="#7d6121" />
-        </radialGradient>
-      </defs>
-      {/* Outer ring */}
-      <circle cx="32" cy="32" r="30" fill="none" stroke="url(#keyEmblem)" strokeWidth="1" opacity="0.55" />
-      {/* Inner ring */}
-      <circle cx="32" cy="32" r="26" fill="none" stroke="url(#keyEmblem)" strokeWidth="0.7" opacity="0.4" />
-      {/* Bow */}
-      <circle cx="32" cy="22" r="9" fill="none" stroke="url(#keyEmblem)" strokeWidth="2.2" />
-      <circle cx="32" cy="22" r="3" fill="url(#keyEmblem)" />
-      {/* Shaft */}
-      <rect x="30.5" y="30" width="3" height="22" rx="0.5" fill="url(#keyEmblem)" />
-      {/* Teeth */}
-      <rect x="33.5" y="44" width="6" height="2.5" rx="0.4" fill="url(#keyEmblem)" />
-      <rect x="33.5" y="48" width="4" height="2.5" rx="0.4" fill="url(#keyEmblem)" />
     </svg>
   );
 }
