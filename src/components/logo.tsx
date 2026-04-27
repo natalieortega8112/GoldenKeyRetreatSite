@@ -12,7 +12,7 @@ const variants: Record<
 > = {
   header: { className: "h-14 sm:h-28", src: HEADER_SRC, w: 2166, h: 726 },
   "header-lg": { className: "h-16 sm:h-32", src: HEADER_SRC, w: 2166, h: 726 },
-  footer: { className: "h-14 sm:h-28", src: FOOTER_SRC, w: 2167, h: 726 },
+  footer: { className: "h-14 sm:h-28", src: FOOTER_SRC, w: 2172, h: 724 },
 };
 
 export function Logo({

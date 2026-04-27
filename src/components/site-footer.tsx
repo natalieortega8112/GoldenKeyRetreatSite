@@ -59,9 +59,7 @@ export function SiteFooter() {
       <div className="relative mx-auto max-w-7xl px-6 lg:px-10 py-12 sm:py-14 grid gap-10 lg:gap-14 md:grid-cols-2 items-start">
         {/* Brand block */}
         <div>
-          <div className="bg-cream rounded-lg inline-block p-2.5 sm:p-3">
-            <Logo variant="footer" />
-          </div>
+          <Logo variant="footer" />
           <p className="mt-5 text-sm text-cream/70 max-w-md leading-relaxed">
             Boutique short-term stays in Miami &amp; Fort Lauderdale —
             handpicked, hand-prepared, and personally hosted.
