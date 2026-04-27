@@ -1,47 +1,187 @@
 import { Logo } from "./logo";
-import { Mail, Phone, MapPin } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Sparkles,
+  KeyRound,
+  Home,
+  ShieldCheck,
+  Clock,
+} from "lucide-react";
+import Link from "next/link";
+
+const TRUST_BADGES = [
+  { icon: Home, label: "Family-Owned" },
+  { icon: MapPin, label: "Locally Based" },
+  { icon: KeyRound, label: "Self Check-In" },
+  { icon: Clock, label: "Reply Under 1 Hr" },
+  { icon: ShieldCheck, label: "Trusted Hosting" },
+];
 
 export function SiteFooter() {
   return (
-    <footer className="bg-cream-soft border-t-2 border-gold/40">
-      <div className="mx-auto max-w-7xl px-6 lg:px-10 py-12 grid gap-10 md:grid-cols-3 items-center">
-        <div className="flex md:justify-start justify-center">
-          <Logo variant="footer" />
+    <footer className="relative bg-[#1a1714] text-cream overflow-hidden">
+      {/* Top gold accent bar */}
+      <div className="h-[3px] bg-gradient-to-r from-gold-soft via-gold to-gold-deep" />
+
+      {/* Subtle palm-leaf atmosphere */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.06]" aria-hidden>
+        <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+          <g fill="#c9a24b">
+            <path d="M -40 380 Q 60 280 130 180 Q 110 260 50 340 Z" />
+            <path d="M 1240 380 Q 1140 280 1070 180 Q 1090 260 1150 340 Z" />
+          </g>
+        </svg>
+      </div>
+
+      {/* Trust signal bar */}
+      <div className="relative border-b border-gold/20 bg-black/20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 py-4 flex flex-wrap justify-center sm:justify-between gap-x-6 gap-y-3 items-center">
+          {TRUST_BADGES.map(({ icon: Icon, label }) => (
+            <div
+              key={label}
+              className="flex items-center gap-2 text-[11px] sm:text-xs uppercase tracking-[0.18em] text-cream/85"
+            >
+              <Icon className="w-4 h-4 text-gold shrink-0" />
+              {label}
+            </div>
+          ))}
         </div>
-        <div className="flex flex-col items-center text-center">
-          <span className="font-serif italic text-3xl sm:text-4xl text-gold-deep leading-none">
+      </div>
+
+      {/* Main footer grid */}
+      <div className="relative mx-auto max-w-7xl px-6 lg:px-10 py-12 sm:py-14 grid gap-10 md:grid-cols-12 items-start">
+        {/* Brand block */}
+        <div className="md:col-span-5">
+          <div className="bg-cream rounded-lg inline-block p-2.5 sm:p-3">
+            <Logo variant="footer" />
+          </div>
+          <p className="mt-4 text-sm text-cream/70 max-w-sm leading-relaxed">
+            Boutique short-term stays in Miami &amp; Fort Lauderdale —
+            handpicked, hand-prepared, and personally hosted.
+          </p>
+          <a
+            href="https://www.instagram.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 inline-flex items-center gap-2 text-sm text-cream/85 hover:text-gold transition-colors"
+          >
+            <span className="w-8 h-8 rounded-full bg-gold/15 flex items-center justify-center text-gold ring-1 ring-gold/30">
+              <InstagramIcon />
+            </span>
+            Follow on Instagram
+          </a>
+        </div>
+
+        {/* Centered ornate key + signature */}
+        <div className="md:col-span-3 flex flex-col items-center text-center">
+          <KeyEmblem />
+          <p className="font-serif italic text-2xl sm:text-3xl text-gold-soft leading-none mt-3">
             Natalie Ortega
-          </span>
-          <span className="mt-3 text-[10px] sm:text-xs uppercase tracking-[0.32em] text-charcoal/70">
+          </p>
+          <p className="mt-2 text-[10px] sm:text-[11px] uppercase tracking-[0.32em] text-cream/60">
             Property Manager
-          </span>
+          </p>
         </div>
-        <div className="flex flex-col items-center md:items-end gap-1.5 text-sm text-charcoal">
+
+        {/* Contact block */}
+        <div className="md:col-span-4 flex flex-col gap-2.5 text-sm md:items-end">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-gold-soft mb-1">
+            Get in Touch
+          </p>
           <a
             href="mailto:goldenkeyretreats@gmail.com"
-            className="flex items-center gap-2 hover:text-gold-deep transition-colors break-all text-center md:text-right"
+            className="flex items-center gap-2.5 text-cream/90 hover:text-gold transition-colors break-all"
           >
             <Mail className="w-4 h-4 text-gold shrink-0" />
             goldenkeyretreats@gmail.com
           </a>
           <a
             href="tel:+13055109055"
-            className="flex items-center gap-2 hover:text-gold-deep transition-colors"
+            className="flex items-center gap-2.5 text-cream/90 hover:text-gold transition-colors"
           >
             <Phone className="w-4 h-4 text-gold shrink-0" />
             305-510-9055
           </a>
-          <span className="flex items-center gap-2 text-muted">
+          <span className="flex items-center gap-2.5 text-cream/70">
             <MapPin className="w-4 h-4 text-gold shrink-0" />
             Miami, Florida
           </span>
+
+          <Link
+            href="/contact"
+            className="mt-3 inline-flex items-center gap-1.5 self-start md:self-end btn-gold px-4 py-2 rounded-full text-xs font-semibold tracking-wide shadow-md"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Send a Message
+          </Link>
         </div>
       </div>
-      <div className="border-t border-line/70">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10 py-4 text-xs text-muted text-center">
-          © {new Date().getFullYear()} Golden Key Retreats. All rights reserved.
+
+      {/* Bottom copyright bar */}
+      <div className="relative border-t border-gold/15">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10 py-4 flex flex-col sm:flex-row gap-2 justify-between items-center text-[11px] text-cream/50">
+          <span>
+            © {new Date().getFullYear()} Golden Key Retreats. All rights reserved.
+          </span>
+          <span className="italic text-cream/60">
+            Boutique stays · Designed in Miami
+          </span>
         </div>
       </div>
     </footer>
+  );
+}
+
+function InstagramIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  );
+}
+
+function KeyEmblem() {
+  return (
+    <svg
+      width="64"
+      height="64"
+      viewBox="0 0 64 64"
+      className="drop-shadow-md"
+      aria-hidden
+    >
+      <defs>
+        <radialGradient id="keyEmblem" cx="50%" cy="40%" r="65%">
+          <stop offset="0%" stopColor="#f4dca0" />
+          <stop offset="55%" stopColor="#c9a24b" />
+          <stop offset="100%" stopColor="#7d6121" />
+        </radialGradient>
+      </defs>
+      {/* Outer ring */}
+      <circle cx="32" cy="32" r="30" fill="none" stroke="url(#keyEmblem)" strokeWidth="1" opacity="0.55" />
+      {/* Inner ring */}
+      <circle cx="32" cy="32" r="26" fill="none" stroke="url(#keyEmblem)" strokeWidth="0.7" opacity="0.4" />
+      {/* Bow */}
+      <circle cx="32" cy="22" r="9" fill="none" stroke="url(#keyEmblem)" strokeWidth="2.2" />
+      <circle cx="32" cy="22" r="3" fill="url(#keyEmblem)" />
+      {/* Shaft */}
+      <rect x="30.5" y="30" width="3" height="22" rx="0.5" fill="url(#keyEmblem)" />
+      {/* Teeth */}
+      <rect x="33.5" y="44" width="6" height="2.5" rx="0.4" fill="url(#keyEmblem)" />
+      <rect x="33.5" y="48" width="4" height="2.5" rx="0.4" fill="url(#keyEmblem)" />
+    </svg>
   );
 }
