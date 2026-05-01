@@ -21,29 +21,36 @@ const TRUST_BADGES = [
 
 export function SiteFooter() {
   return (
-    <footer className="relative bg-[#1a1714] text-cream overflow-hidden">
+    <footer
+      id="site-footer"
+      className="relative bg-cream text-ink overflow-hidden border-t border-line"
+    >
       {/* Top gold accent bar */}
       <div className="h-[3px] bg-gradient-to-r from-gold-soft via-gold to-gold-deep" />
 
-      {/* Big gold logo watermark behind everything */}
+      {/* Big logo watermark behind everything.
+          Uses the light-bg logo variant so its baked-in cream background
+          matches the cream-soft footer; mix-blend-multiply lets the
+          gold strokes tint into the footer as a faint watermark with
+          no visible rectangle. */}
       <div
         className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden"
         aria-hidden
       >
         <Image
-          src="/logo-watermark.png"
+          src="/golden-key-retreats-logo.png"
           alt=""
-          width={1400}
-          height={467}
+          width={2166}
+          height={726}
           sizes="100vw"
-          className="w-[140%] sm:w-[110%] max-w-none opacity-[0.07] sm:opacity-[0.09] select-none"
+          className="w-[140%] sm:w-[110%] max-w-none opacity-20 sm:opacity-25 mix-blend-multiply select-none"
           priority={false}
         />
       </div>
 
       {/* Subtle palm-leaf atmosphere on top of watermark */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-[0.05]"
+        className="absolute inset-0 pointer-events-none opacity-[0.07]"
         aria-hidden
       >
         <svg
@@ -60,14 +67,14 @@ export function SiteFooter() {
       </div>
 
       {/* Trust signal bar */}
-      <div className="relative border-b border-gold/20 bg-black/30 backdrop-blur-sm">
+      <div className="relative border-b border-gold/25 bg-cream-soft/60 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 py-4 flex flex-wrap justify-center sm:justify-between gap-x-6 gap-y-3 items-center">
           {TRUST_BADGES.map(({ icon: Icon, label }) => (
             <div
               key={label}
-              className="flex items-center gap-2 text-[11px] sm:text-xs uppercase tracking-[0.18em] text-cream/85"
+              className="flex items-center gap-2 text-[11px] sm:text-xs uppercase tracking-[0.18em] text-charcoal/85"
             >
-              <Icon className="w-4 h-4 text-gold shrink-0" />
+              <Icon className="w-4 h-4 text-gold-deep shrink-0" />
               {label}
             </div>
           ))}
@@ -78,13 +85,13 @@ export function SiteFooter() {
       <div className="relative mx-auto max-w-7xl px-6 lg:px-10 py-14 sm:py-16 grid gap-10 lg:gap-14 md:grid-cols-2 items-start">
         {/* Brand block */}
         <div>
-          <p className="text-[10px] uppercase tracking-[0.32em] text-gold-soft mb-3">
+          <p className="text-[10px] uppercase tracking-[0.32em] text-gold-deep mb-3">
             About Us
           </p>
-          <h3 className="font-serif text-2xl sm:text-3xl text-cream leading-snug max-w-md">
+          <h3 className="font-serif text-2xl sm:text-3xl text-ink leading-snug max-w-md">
             Boutique short-term stays in Miami &amp; Fort Lauderdale.
           </h3>
-          <p className="mt-4 text-sm text-cream/70 max-w-md leading-relaxed">
+          <p className="mt-4 text-sm text-charcoal/75 max-w-md leading-relaxed">
             Handpicked, hand-prepared, and personally hosted by Natalie Ortega.
             Every detail tuned for comfort and trust.
           </p>
@@ -92,9 +99,9 @@ export function SiteFooter() {
             href="https://www.instagram.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 inline-flex items-center gap-2 text-sm text-cream/85 hover:text-gold transition-colors"
+            className="mt-6 inline-flex items-center gap-2 text-sm text-charcoal/85 hover:text-gold-deep transition-colors"
           >
-            <span className="w-9 h-9 rounded-full bg-gold/15 flex items-center justify-center text-gold ring-1 ring-gold/30">
+            <span className="w-9 h-9 rounded-full bg-gold/15 flex items-center justify-center text-gold-deep ring-1 ring-gold/40">
               <InstagramIcon />
             </span>
             Follow on Instagram
@@ -103,33 +110,33 @@ export function SiteFooter() {
 
         {/* Host + contact block */}
         <div className="md:justify-self-end md:text-right max-w-md md:ml-auto">
-          <p className="text-[10px] uppercase tracking-[0.32em] text-gold-soft mb-2">
+          <p className="text-[10px] uppercase tracking-[0.32em] text-gold-deep mb-2">
             Your Host
           </p>
-          <p className="font-serif italic text-3xl sm:text-4xl text-gold-soft leading-none">
+          <p className="font-serif italic text-3xl sm:text-4xl text-gold-deep leading-none">
             Natalie Ortega
           </p>
-          <p className="mt-2 text-[11px] uppercase tracking-[0.28em] text-cream/60">
+          <p className="mt-2 text-[11px] uppercase tracking-[0.28em] text-charcoal/65">
             Property Manager · Golden Key Retreats
           </p>
 
           <div className="mt-6 space-y-2.5 text-sm md:flex md:flex-col md:items-end">
             <a
               href="mailto:goldenkeyretreats@gmail.com"
-              className="inline-flex items-center gap-2.5 text-cream/90 hover:text-gold transition-colors break-all"
+              className="inline-flex items-center gap-2.5 text-charcoal hover:text-gold-deep transition-colors break-all"
             >
-              <Mail className="w-4 h-4 text-gold shrink-0" />
+              <Mail className="w-4 h-4 text-gold-deep shrink-0" />
               goldenkeyretreats@gmail.com
             </a>
             <a
               href="tel:+13055109055"
-              className="inline-flex items-center gap-2.5 text-cream/90 hover:text-gold transition-colors"
+              className="inline-flex items-center gap-2.5 text-charcoal hover:text-gold-deep transition-colors"
             >
-              <Phone className="w-4 h-4 text-gold shrink-0" />
+              <Phone className="w-4 h-4 text-gold-deep shrink-0" />
               305-510-9055
             </a>
-            <span className="inline-flex items-center gap-2.5 text-cream/70">
-              <MapPin className="w-4 h-4 text-gold shrink-0" />
+            <span className="inline-flex items-center gap-2.5 text-charcoal/75">
+              <MapPin className="w-4 h-4 text-gold-deep shrink-0" />
               Miami, Florida
             </span>
           </div>
@@ -145,12 +152,12 @@ export function SiteFooter() {
       </div>
 
       {/* Bottom copyright bar */}
-      <div className="relative border-t border-gold/15 bg-black/20">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10 py-4 flex flex-col sm:flex-row gap-2 justify-between items-center text-[11px] text-cream/50">
+      <div className="relative border-t border-gold/20 bg-cream-soft/50">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10 py-4 flex flex-col sm:flex-row gap-2 justify-between items-center text-[11px] text-charcoal/65">
           <span>
             © {new Date().getFullYear()} Golden Key Retreats. All rights reserved.
           </span>
-          <span className="italic text-cream/60">
+          <span className="italic text-charcoal/75">
             Boutique stays · Designed in Miami
           </span>
         </div>

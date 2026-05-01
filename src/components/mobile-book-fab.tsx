@@ -7,6 +7,7 @@ import { BOOKING_PLATFORMS } from "@/lib/site-data";
 
 export function MobileBookFab() {
   const [open, setOpen] = useState(false);
+  const [footerVisible, setFooterVisible] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
@@ -33,8 +34,24 @@ export function MobileBookFab() {
     setOpen(false);
   }, [pathname]);
 
-  // Hide on admin pages — Nat doesn't need the public CTA there
+  // Hide once the footer scrolls into view so the FAB doesn't overlap
+  // the footer's CTAs or copyright bar.
+  useEffect(() => {
+    const footer = document.getElementById("site-footer");
+    if (!footer) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setFooterVisible(entry.isIntersecting),
+      { rootMargin: "0px 0px -40px 0px" },
+    );
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, [pathname]);
+
+  // Hide on admin pages — Nat doesn't need the public CTA there.
+  // Hide on /contact — the form already has its own primary submit CTA.
   if (pathname?.startsWith("/admin")) return null;
+  if (pathname === "/contact") return null;
+  if (footerVisible) return null;
 
   return (
     <div
