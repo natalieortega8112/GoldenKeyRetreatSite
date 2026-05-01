@@ -3,30 +3,15 @@ import Image from "next/image";
 
 type LogoSize = "header" | "header-lg" | "footer";
 
-const HEADER_SRC = "/golden-key-retreats-logo.png";
+const HEADER_SRC = "/golden-key-retreats-logo-transparent.png";
 const FOOTER_SRC = "/golden-key-retreats-logo-footer.png";
 
-// The header PNGs ship with a solid light-cream background baked in
-// (no alpha channel), so without help they sit as a visible rectangle
-// on top of the header's bg-cream/95. mix-blend-multiply makes the
-// white/cream pixels of the PNG drop into the cream header background
-// while the gold strokes stay readable.
 const variants: Record<
   LogoSize,
   { className: string; src: string; w: number; h: number }
 > = {
-  header: {
-    className: "h-10 sm:h-28 mix-blend-multiply",
-    src: HEADER_SRC,
-    w: 2166,
-    h: 726,
-  },
-  "header-lg": {
-    className: "h-16 sm:h-32 mix-blend-multiply",
-    src: HEADER_SRC,
-    w: 2166,
-    h: 726,
-  },
+  header: { className: "h-10 sm:h-28", src: HEADER_SRC, w: 2166, h: 726 },
+  "header-lg": { className: "h-16 sm:h-32", src: HEADER_SRC, w: 2166, h: 726 },
   footer: { className: "h-20 sm:h-36", src: FOOTER_SRC, w: 2172, h: 724 },
 };
 

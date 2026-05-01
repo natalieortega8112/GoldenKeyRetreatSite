@@ -7,7 +7,7 @@ export function SiteHeader() {
     <header className="w-full sticky top-0 z-40">
       <div className="h-[3px] bg-gradient-to-r from-gold-soft via-gold to-gold-deep" />
 
-      <div className="isolate bg-cream border-b-2 border-gold/60 shadow-sm shadow-gold/10">
+      <div className="bg-cream/95 backdrop-blur border-b-2 border-gold/60 shadow-sm shadow-gold/10">
         <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-10 h-16 sm:h-36 flex items-center justify-between gap-2 sm:gap-4">
           <Logo variant="header" />
 
