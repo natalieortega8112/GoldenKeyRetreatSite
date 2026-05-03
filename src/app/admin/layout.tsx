@@ -20,19 +20,31 @@ export default async function AdminLayout({
       {admin && (
         <div className="border-b border-line bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 h-12 flex items-center justify-between text-sm">
-            <div className="flex items-center gap-3 sm:gap-6">
-              <span className="text-xs uppercase tracking-[0.25em] text-gold-deep">
+            <div className="flex items-center gap-3 sm:gap-5 overflow-x-auto">
+              <span className="text-xs uppercase tracking-[0.25em] text-gold-deep shrink-0">
                 Admin
               </span>
               <Link
+                href="/admin"
+                className="text-charcoal hover:text-gold-deep shrink-0"
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="/admin/inbox"
+                className="text-charcoal hover:text-gold-deep shrink-0"
+              >
+                Inbox
+              </Link>
+              <Link
                 href="/admin/units"
-                className="text-charcoal hover:text-gold-deep"
+                className="text-charcoal hover:text-gold-deep shrink-0"
               >
                 Units
               </Link>
               <Link
                 href="/admin/units/new"
-                className="text-charcoal hover:text-gold-deep"
+                className="text-charcoal hover:text-gold-deep shrink-0"
               >
                 + New Unit
               </Link>

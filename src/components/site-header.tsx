@@ -1,8 +1,12 @@
 import Link from "next/link";
 import { Logo } from "./logo";
 import { BookingMenu } from "./booking-menu";
+import { AdminLoginButton } from "./admin-login-button";
+import { isAdmin } from "@/lib/auth";
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const admin = await isAdmin();
+
   return (
     <header className="w-full sticky top-0 z-40">
       <div className="h-[3px] bg-gradient-to-r from-gold-soft via-gold to-gold-deep" />
@@ -11,7 +15,7 @@ export function SiteHeader() {
         <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-10 h-16 sm:h-36 flex items-center justify-between gap-2 sm:gap-4">
           <Logo variant="header" />
 
-          <nav className="flex items-center gap-3 sm:gap-8 text-[13px] sm:text-base font-bold tracking-wide">
+          <nav className="flex items-center gap-3 sm:gap-7 text-[13px] sm:text-base font-bold tracking-wide">
             <NavLink href="/units">
               <span className="sm:hidden">Units</span>
               <span className="hidden sm:inline">Featured Units</span>
@@ -21,6 +25,8 @@ export function SiteHeader() {
             <div className="hidden sm:block">
               <BookingMenu />
             </div>
+
+            <AdminLoginButton isAdmin={admin} />
           </nav>
         </div>
       </div>
