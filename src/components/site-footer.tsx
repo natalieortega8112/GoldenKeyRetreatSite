@@ -118,22 +118,22 @@ export function SiteFooter() {
             Property Manager · Golden Key Retreats
           </p>
 
-          <div className="mt-6 space-y-2.5 text-sm md:flex md:flex-col md:items-end">
+          <div className="mt-6 flex flex-col items-start gap-2.5 text-sm md:items-end">
             <a
               href="tel:+13055109055"
-              className="inline-flex items-center gap-2.5 text-cream/90 hover:text-gold transition-colors"
+              className="flex items-center gap-2.5 text-cream/90 hover:text-gold transition-colors"
             >
               <Phone className="w-4 h-4 text-gold shrink-0" />
               305-510-9055
             </a>
             <a
               href="mailto:goldenkeyretreats@gmail.com"
-              className="inline-flex items-center gap-2.5 text-cream/90 hover:text-gold transition-colors break-all"
+              className="flex items-center gap-2.5 text-cream/90 hover:text-gold transition-colors break-all"
             >
               <Mail className="w-4 h-4 text-gold shrink-0" />
               goldenkeyretreats@gmail.com
             </a>
-            <span className="inline-flex items-center gap-2.5 text-cream/70">
+            <span className="flex items-center gap-2.5 text-cream/70">
               <MapPin className="w-4 h-4 text-gold shrink-0" />
               Miami, Florida
             </span>
