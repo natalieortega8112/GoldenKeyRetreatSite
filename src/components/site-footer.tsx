@@ -120,18 +120,18 @@ export function SiteFooter() {
 
           <div className="mt-6 space-y-2.5 text-sm md:flex md:flex-col md:items-end">
             <a
-              href="mailto:goldenkeyretreats@gmail.com"
-              className="inline-flex items-center gap-2.5 text-cream/90 hover:text-gold transition-colors break-all"
-            >
-              <Mail className="w-4 h-4 text-gold shrink-0" />
-              goldenkeyretreats@gmail.com
-            </a>
-            <a
               href="tel:+13055109055"
               className="inline-flex items-center gap-2.5 text-cream/90 hover:text-gold transition-colors"
             >
               <Phone className="w-4 h-4 text-gold shrink-0" />
               305-510-9055
+            </a>
+            <a
+              href="mailto:goldenkeyretreats@gmail.com"
+              className="inline-flex items-center gap-2.5 text-cream/90 hover:text-gold transition-colors break-all"
+            >
+              <Mail className="w-4 h-4 text-gold shrink-0" />
+              goldenkeyretreats@gmail.com
             </a>
             <span className="inline-flex items-center gap-2.5 text-cream/70">
               <MapPin className="w-4 h-4 text-gold shrink-0" />
