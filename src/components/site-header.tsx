@@ -3,9 +3,11 @@ import { Logo } from "./logo";
 import { BookingMenu } from "./booking-menu";
 import { AdminLoginButton } from "./admin-login-button";
 import { isAdmin } from "@/lib/auth";
+import { unreadCount } from "@/lib/messages";
 
 export async function SiteHeader() {
   const admin = await isAdmin();
+  const unread = admin ? await unreadCount() : 0;
 
   return (
     <header className="w-full sticky top-0 z-40">
@@ -26,7 +28,7 @@ export async function SiteHeader() {
               <BookingMenu />
             </div>
 
-            <AdminLoginButton isAdmin={admin} />
+            <AdminLoginButton isAdmin={admin} unreadCount={unread} />
           </nav>
         </div>
       </div>
