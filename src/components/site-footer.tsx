@@ -29,21 +29,19 @@ export function SiteFooter() {
       <div className="h-[3px] bg-gradient-to-r from-gold-soft via-gold to-gold-deep" />
 
       {/* Big gold logo watermark behind everything.
-          Uses the dark-bg logo variant (gold on dark) so its baked-in
-          background already matches the #1a1714 footer; mix-blend-screen
-          then makes the dark pixels disappear into the footer entirely,
-          leaving only the gold strokes as a soft glow. */}
+          Uses the transparent dark-bg variant so the gold strokes float
+          on the footer background with no baked-in plate. */}
       <div
         className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden"
         aria-hidden
       >
         <Image
-          src="/golden-key-retreats-logo-footer.png"
+          src="/golden-key-retreats-logo-footer-transparent.png"
           alt=""
           width={2172}
           height={724}
           sizes="100vw"
-          className="w-[140%] sm:w-[110%] max-w-none opacity-40 sm:opacity-50 mix-blend-screen select-none"
+          className="w-[140%] sm:w-[110%] max-w-none opacity-30 sm:opacity-40 select-none"
           priority={false}
         />
       </div>
