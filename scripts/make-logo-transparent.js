@@ -3,8 +3,15 @@
 // partial alpha on near-matches so antialiased letter edges don't fringe.
 //
 // Usage:
-//   node scripts/make-logo-transparent.js <input.png> <output.png> [fuzz] [soft]
+//   node scripts/make-logo-transparent.js <input.png> <output.png> [fuzz] [soft] [lumaFloor] [lumaCeil]
 // If no args are given, defaults to the header light-bg logo.
+//
+// lumaFloor: pixels darker than this average rgb are forced transparent
+//            (use to strip stray-dark background that drifts outside the
+//            fuzz sphere). Set to 0 to disable.
+// lumaCeil:  pixels brighter than this average rgb are forced transparent
+//            (use to strip stray-light background on a light source PNG).
+//            Set to 256 to disable.
 
 const sharp = require("sharp");
 const path = require("path");
@@ -20,6 +27,8 @@ const OUTPUT = args[1]
   : path.join(PUBLIC, "golden-key-retreats-logo-transparent.png");
 const FUZZ = Number(args[2] ?? 70); // RGB distance treated as background
 const SOFT = Number(args[3] ?? 35); // additional band where alpha ramps 0 → 255
+const LUMA_FLOOR = Number(args[4] ?? 0); // 0 = disabled
+const LUMA_CEIL = Number(args[5] ?? 256); // 256 = disabled
 
 (async () => {
   const { data, info } = await sharp(INPUT)
@@ -32,11 +41,12 @@ const SOFT = Number(args[3] ?? 35); // additional band where alpha ramps 0 → 2
   const bgG = data[1];
   const bgB = data[2];
   console.log(
-    `[${path.basename(INPUT)}] background sample: rgb(${bgR}, ${bgG}, ${bgB}); fuzz=${FUZZ} soft=${SOFT}`,
+    `[${path.basename(INPUT)}] background sample: rgb(${bgR}, ${bgG}, ${bgB}); fuzz=${FUZZ} soft=${SOFT} lumaFloor=${LUMA_FLOOR} lumaCeil=${LUMA_CEIL}`,
   );
 
   let cleared = 0;
   let softened = 0;
+  let lumaCleared = 0;
 
   for (let i = 0; i < data.length; i += 4) {
     const r = data[i];
@@ -47,6 +57,13 @@ const SOFT = Number(args[3] ?? 35); // additional band where alpha ramps 0 → 2
     const dg = g - bgG;
     const db = b - bgB;
     const dist = Math.sqrt(dr * dr + dg * dg + db * db);
+
+    const luma = (r + g + b) / 3;
+    if (luma < LUMA_FLOOR || luma > LUMA_CEIL) {
+      data[i + 3] = 0;
+      lumaCleared++;
+      continue;
+    }
 
     if (dist <= FUZZ) {
       data[i + 3] = 0;
@@ -65,7 +82,7 @@ const SOFT = Number(args[3] ?? 35); // additional band where alpha ramps 0 → 2
     .toFile(OUTPUT);
 
   console.log(
-    `→ ${cleared.toLocaleString()} fully transparent, ${softened.toLocaleString()} soft-edge.`,
+    `→ ${cleared.toLocaleString()} bg-match, ${lumaCleared.toLocaleString()} luma-clipped, ${softened.toLocaleString()} soft-edge.`,
   );
   console.log(`→ wrote ${OUTPUT}`);
 })().catch((err) => {

@@ -41,7 +41,7 @@ export function SiteFooter() {
           width={2172}
           height={724}
           sizes="100vw"
-          className="w-[140%] sm:w-[110%] max-w-none opacity-30 sm:opacity-40 select-none"
+          className="w-[140%] sm:w-[110%] max-w-none opacity-[0.12] sm:opacity-20 select-none"
           priority={false}
         />
       </div>
