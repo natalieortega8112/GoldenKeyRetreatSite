@@ -240,4 +240,4 @@ export async function deleteUnit(id: string): Promise<void> {
   await sql`DELETE FROM units WHERE id = ${id}`;
 }
 
-export { isDbConfigured };
+export { isDbConfigured, getSql, ensureSchema };
