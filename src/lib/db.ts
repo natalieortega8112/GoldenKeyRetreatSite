@@ -68,6 +68,23 @@ async function ensureSchema() {
       await sql`ALTER TABLE units ADD COLUMN IF NOT EXISTS airbnb_url TEXT`;
       await sql`ALTER TABLE units ADD COLUMN IF NOT EXISTS vrbo_url TEXT`;
       await sql`ALTER TABLE units ADD COLUMN IF NOT EXISTS booking_com_url TEXT`;
+
+      // Inbox messages — populated by the public contact form, read by
+      // /admin/inbox. status: new | read | replied | archived.
+      await sql`
+        CREATE TABLE IF NOT EXISTS messages (
+          id           TEXT PRIMARY KEY,
+          name         TEXT NOT NULL,
+          email        TEXT NOT NULL,
+          phone        TEXT,
+          subject      TEXT,
+          body         TEXT NOT NULL,
+          status       TEXT NOT NULL DEFAULT 'new',
+          created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS messages_status_idx ON messages(status)`;
+      await sql`CREATE INDEX IF NOT EXISTS messages_created_idx ON messages(created_at DESC)`;
     })();
   }
   await initPromise;
