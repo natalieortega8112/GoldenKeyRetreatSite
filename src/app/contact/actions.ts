@@ -1,6 +1,7 @@
 "use server";
 
 import { Resend } from "resend";
+import { createMessage } from "@/lib/messages";
 
 export type ContactState =
   | { status: "idle" }
@@ -27,6 +28,22 @@ export async function sendContactMessage(
     return { status: "error", message: "Please enter a valid email address." };
   }
 
+  // Persist to the inbox first so the message is captured even if email
+  // delivery fails. Failures here don't block the email send.
+  let persisted = false;
+  try {
+    await createMessage({
+      name,
+      email,
+      phone: phone || null,
+      subject: null,
+      body: message,
+    });
+    persisted = true;
+  } catch (err) {
+    console.error("[contact] inbox persist failed", err);
+  }
+
   const apiKey = process.env.RESEND_API_KEY;
   const fromAddress =
     process.env.CONTACT_FROM_EMAIL || "Golden Key Retreats <onboarding@resend.dev>";
@@ -34,6 +51,7 @@ export async function sendContactMessage(
 
   if (!apiKey) {
     console.error("[contact] RESEND_API_KEY is not set");
+    if (persisted) return { status: "ok" };
     return {
       status: "error",
       message:
@@ -61,6 +79,7 @@ export async function sendContactMessage(
     return { status: "ok" };
   } catch (err) {
     console.error("[contact] resend error", err);
+    if (persisted) return { status: "ok" };
     return {
       status: "error",
       message: "Sorry — your message couldn't be sent. Please try again or email directly.",
