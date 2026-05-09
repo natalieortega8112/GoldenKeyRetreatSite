@@ -8,10 +8,13 @@ import {
   CalendarRange,
   Database,
   ArrowRight,
+  Sparkles,
+  X,
 } from "lucide-react";
 import { isAdmin } from "@/lib/auth";
 import { isDbConfigured } from "@/lib/db";
 import { getPropertySummaries } from "@/lib/operations";
+import { DEMO_SUMMARIES } from "./_demo";
 
 export const metadata = {
   title: "Operations | Admin · Golden Key Retreats",
@@ -19,11 +22,22 @@ export const metadata = {
 
 export const revalidate = 0;
 
-export default async function OperationsHomePage() {
+export default async function OperationsHomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ demo?: string }>;
+}) {
   if (!(await isAdmin())) redirect("/admin/login");
 
+  const sp = await searchParams;
+  const demo = sp.demo === "1";
+
   const dbReady = isDbConfigured();
-  const summaries = dbReady ? await getPropertySummaries().catch(() => []) : [];
+  const summaries = demo
+    ? DEMO_SUMMARIES
+    : dbReady
+      ? await getPropertySummaries().catch(() => [])
+      : [];
 
   const totals = summaries.reduce(
     (acc, s) => ({
@@ -51,19 +65,53 @@ export default async function OperationsHomePage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-10 py-8 sm:py-12">
-      <header className="mb-8 sm:mb-10">
+      <header className="mb-6 sm:mb-8">
         <p className="text-[10px] uppercase tracking-[0.32em] text-gold-deep mb-2">
           Operations
         </p>
-        <h1 className="font-serif text-3xl sm:text-4xl text-ink">
-          Operations Sheet
-        </h1>
-        <p className="text-sm text-charcoal/70 mt-2">
-          Inventory, expenses, and bookings across all your units.
-        </p>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="font-serif text-3xl sm:text-4xl text-ink">
+              Operations Sheet
+            </h1>
+            <p className="text-sm text-charcoal/70 mt-2">
+              Inventory, expenses, and bookings across all your units.
+            </p>
+          </div>
+          {!demo && (
+            <Link
+              href="/admin/operations?demo=1"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-gold/15 text-gold-deep ring-1 ring-gold/40 hover:bg-gold/25 transition-colors shrink-0"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              View Demo
+            </Link>
+          )}
+        </div>
       </header>
 
-      {!dbReady && (
+      {demo && (
+        <div className="rounded-xl bg-gold/10 ring-1 ring-gold/40 px-4 py-3 mb-6 flex items-start gap-3 text-sm">
+          <Sparkles className="w-4 h-4 text-gold-deep mt-0.5 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <strong className="text-ink">Demo mode.</strong>
+            <span className="text-charcoal/80">
+              {" "}
+              These are sample numbers — nothing here is connected to your real data.
+              Use it to see how the dashboard looks once you start tracking properties.
+            </span>
+          </div>
+          <Link
+            href="/admin/operations"
+            className="text-gold-deep hover:text-ink transition-colors shrink-0"
+            aria-label="Exit demo"
+          >
+            <X className="w-4 h-4" />
+          </Link>
+        </div>
+      )}
+
+      {!demo && !dbReady && (
         <div className="rounded-md bg-amber-50 border border-amber-300 text-amber-900 px-4 py-3 mb-6 text-sm">
           <strong>Database not connected.</strong> Add a Postgres database in
           your Vercel project (Storage → Postgres) and set <code>POSTGRES_URL</code>.
@@ -105,6 +153,7 @@ export default async function OperationsHomePage() {
           title="Properties"
           desc="Add, edit, or remove rental units."
           badge={`${totals.properties}`}
+          disabled={demo}
         />
         <SectionCard
           href="/admin/operations/inventory"
@@ -112,6 +161,7 @@ export default async function OperationsHomePage() {
           title="Inventory"
           desc="What's stocked at each unit."
           badge={`${totals.itemsHave}/${totals.itemCount}`}
+          disabled={demo}
         />
         <SectionCard
           href="/admin/operations/budget"
@@ -123,24 +173,28 @@ export default async function OperationsHomePage() {
               ? Math.round((totals.spentCents / totals.budgetCents) * 100) + "%"
               : undefined
           }
+          disabled={demo}
         />
         <SectionCard
           href="/admin/operations/links"
           icon={<LinkIcon className="w-5 h-5" />}
           title="Product Links"
           desc="Where to buy / re-buy each item."
+          disabled={demo}
         />
         <SectionCard
           href="/admin/operations/income"
           icon={<CalendarRange className="w-5 h-5" />}
           title="Income / Bookings"
           desc="Revenue per property per booking."
+          disabled={demo}
         />
         <SectionCard
           href="/admin/operations/backup"
           icon={<Database className="w-5 h-5" />}
           title="Backup"
           desc="Download a snapshot of all data."
+          disabled={demo}
         />
       </div>
 
@@ -150,7 +204,11 @@ export default async function OperationsHomePage() {
           <h2 className="font-serif text-lg text-ink mb-3">By Property</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {summaries.map((s) => (
-              <PropertyCard key={s.property.id} summary={s} />
+              <PropertyCard
+                key={s.property.id}
+                summary={s}
+                disabled={demo}
+              />
             ))}
           </div>
         </>
@@ -213,6 +271,7 @@ function SectionCard({
   desc,
   badge,
   comingSoon,
+  disabled,
 }: {
   href: string;
   icon: React.ReactNode;
@@ -220,7 +279,9 @@ function SectionCard({
   desc: string;
   badge?: string;
   comingSoon?: boolean;
+  disabled?: boolean;
 }) {
+  const inactive = comingSoon || disabled;
   const inner = (
     <div className="bg-white rounded-xl ring-1 ring-line p-5 sm:p-6 hover:ring-gold transition-all flex items-start gap-4 group">
       <div className="w-11 h-11 rounded-full bg-gold/15 text-gold-deep flex items-center justify-center shrink-0">
@@ -242,20 +303,22 @@ function SectionCard({
         </div>
         <p className="text-sm text-charcoal/75">{desc}</p>
       </div>
-      {!comingSoon && (
+      {!inactive && (
         <ArrowRight className="w-4 h-4 text-muted group-hover:text-gold-deep group-hover:translate-x-0.5 transition-all shrink-0 mt-1.5" />
       )}
     </div>
   );
 
-  if (comingSoon) return <div className="opacity-60 cursor-not-allowed">{inner}</div>;
+  if (inactive) return <div className="opacity-60 cursor-not-allowed">{inner}</div>;
   return <Link href={href}>{inner}</Link>;
 }
 
 function PropertyCard({
   summary,
+  disabled,
 }: {
   summary: Awaited<ReturnType<typeof getPropertySummaries>>[number];
+  disabled?: boolean;
 }) {
   const { property, itemCount, itemsHave, totalBudgetCents, totalSpentCents } =
     summary;
@@ -264,11 +327,9 @@ function PropertyCard({
     totalBudgetCents > 0
       ? Math.round((totalSpentCents / totalBudgetCents) * 100)
       : 0;
-  return (
-    <Link
-      href={`/admin/operations/properties/${property.id}`}
-      className="rounded-xl bg-white ring-1 ring-line hover:ring-gold transition-all p-5 block"
-    >
+
+  const inner = (
+    <>
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="min-w-0">
           <div className="text-[10px] uppercase tracking-[0.2em] text-gold-deep">
@@ -293,6 +354,22 @@ function PropertyCard({
         pct={budgetPct}
         caption={`${fmtMoney(totalSpentCents)} / ${fmtMoney(totalBudgetCents)}`}
       />
+    </>
+  );
+
+  if (disabled) {
+    return (
+      <div className="rounded-xl bg-white ring-1 ring-line p-5 cursor-default">
+        {inner}
+      </div>
+    );
+  }
+  return (
+    <Link
+      href={`/admin/operations/properties/${property.id}`}
+      className="rounded-xl bg-white ring-1 ring-line hover:ring-gold transition-all p-5 block"
+    >
+      {inner}
     </Link>
   );
 }
