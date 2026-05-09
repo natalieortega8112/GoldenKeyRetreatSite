@@ -50,11 +50,10 @@ export default async function AdminHomePage() {
           desc="Add, edit, or remove rental listings."
         />
         <Card
-          href="#"
+          href="/admin/operations"
           icon={<FileSpreadsheet className="w-5 h-5" />}
           title="Operations Sheet"
           desc="Inventory · expenses · bookings."
-          comingSoon
         />
         <Card
           href="/"

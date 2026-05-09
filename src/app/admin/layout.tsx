@@ -43,10 +43,10 @@ export default async function AdminLayout({
                 Units
               </Link>
               <Link
-                href="/admin/units/new"
+                href="/admin/operations"
                 className="text-charcoal hover:text-gold-deep shrink-0"
               >
-                + New Unit
+                Operations
               </Link>
             </div>
             <form action={logout}>

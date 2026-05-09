@@ -85,6 +85,83 @@ async function ensureSchema() {
       `;
       await sql`CREATE INDEX IF NOT EXISTS messages_status_idx ON messages(status)`;
       await sql`CREATE INDEX IF NOT EXISTS messages_created_idx ON messages(created_at DESC)`;
+
+      // ── Operations Sheet tables ───────────────────────────────────
+      // properties: master list of arbitrage units
+      await sql`
+        CREATE TABLE IF NOT EXISTS properties (
+          id                  TEXT PRIMARY KEY,
+          name                TEXT NOT NULL,
+          address             TEXT NOT NULL DEFAULT '',
+          monthly_rent_cents  INT,
+          beds                INT,
+          baths               NUMERIC(3,1),
+          amenities           JSONB NOT NULL DEFAULT '[]'::jsonb,
+          created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+      `;
+
+      // property_items: inventory + budget rolled into one row per item-per-property.
+      // status drives the budget tracker (Pending/Ordered/Bought).
+      // has_it drives the inventory checkbox (true = stocked at the unit right now).
+      await sql`
+        CREATE TABLE IF NOT EXISTS property_items (
+          id                  TEXT PRIMARY KEY,
+          property_id         TEXT NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+          category            TEXT NOT NULL,
+          item                TEXT NOT NULL,
+          qty                 INT NOT NULL DEFAULT 1,
+          notes               TEXT NOT NULL DEFAULT '',
+          budget_cents        INT,
+          actual_cost_cents   INT,
+          store               TEXT NOT NULL DEFAULT '',
+          status              TEXT NOT NULL DEFAULT 'Pending',
+          has_it              BOOLEAN NOT NULL DEFAULT FALSE,
+          sort_order          INT NOT NULL DEFAULT 0,
+          last_purchased_at   TIMESTAMPTZ,
+          created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS property_items_property_idx ON property_items(property_id)`;
+      await sql`CREATE INDEX IF NOT EXISTS property_items_category_idx ON property_items(property_id, category)`;
+
+      // product_catalog: shared link library — one row per product (brand, store, URL).
+      // Not tied to a specific property; same product may be used at multiple units.
+      await sql`
+        CREATE TABLE IF NOT EXISTS product_catalog (
+          id                  TEXT PRIMARY KEY,
+          category            TEXT NOT NULL,
+          item                TEXT NOT NULL,
+          brand               TEXT NOT NULL DEFAULT '',
+          store               TEXT NOT NULL DEFAULT '',
+          link_url            TEXT NOT NULL DEFAULT '',
+          price_cents         INT,
+          notes               TEXT NOT NULL DEFAULT '',
+          last_verified_at    TIMESTAMPTZ,
+          created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS product_catalog_category_idx ON product_catalog(category)`;
+
+      // bookings: revenue/income tracking per property — answers "what's bringing in money?"
+      await sql`
+        CREATE TABLE IF NOT EXISTS bookings (
+          id                  TEXT PRIMARY KEY,
+          property_id         TEXT NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+          source              TEXT NOT NULL DEFAULT '',
+          check_in            DATE NOT NULL,
+          check_out           DATE NOT NULL,
+          nights              INT NOT NULL DEFAULT 0,
+          gross_cents         INT NOT NULL DEFAULT 0,
+          cleaning_cents      INT NOT NULL DEFAULT 0,
+          platform_fee_cents  INT NOT NULL DEFAULT 0,
+          net_cents           INT NOT NULL DEFAULT 0,
+          notes               TEXT NOT NULL DEFAULT '',
+          created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS bookings_property_idx ON bookings(property_id)`;
+      await sql`CREATE INDEX IF NOT EXISTS bookings_checkin_idx ON bookings(check_in DESC)`;
     })();
   }
   await initPromise;
