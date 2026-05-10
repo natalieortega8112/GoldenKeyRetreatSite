@@ -320,13 +320,21 @@ function PropertyCard({
   summary: Awaited<ReturnType<typeof getPropertySummaries>>[number];
   disabled?: boolean;
 }) {
-  const { property, itemCount, itemsHave, totalBudgetCents, totalSpentCents } =
-    summary;
+  const {
+    property,
+    itemCount,
+    itemsHave,
+    totalBudgetCents,
+    totalSpentCents,
+    bookingCount,
+    netRevenueCents,
+  } = summary;
   const stockPct = itemCount > 0 ? Math.round((itemsHave / itemCount) * 100) : 0;
   const budgetPct =
     totalBudgetCents > 0
       ? Math.round((totalSpentCents / totalBudgetCents) * 100)
       : 0;
+  const netPosition = netRevenueCents - totalSpentCents;
 
   const inner = (
     <>
@@ -354,6 +362,34 @@ function PropertyCard({
         pct={budgetPct}
         caption={`${fmtMoney(totalSpentCents)} / ${fmtMoney(totalBudgetCents)}`}
       />
+
+      <div className="mt-3 pt-3 border-t border-line/60 flex items-center justify-between gap-2">
+        <div>
+          <div className="text-[10px] uppercase tracking-[0.2em] text-muted">
+            {bookingCount} {bookingCount === 1 ? "booking" : "bookings"} · net
+          </div>
+          <div className="font-serif text-base text-ink tabular-nums">
+            {fmtMoney(netRevenueCents)}
+          </div>
+        </div>
+        <div className="text-right">
+          <div
+            className={`text-[10px] uppercase tracking-[0.2em] font-semibold ${
+              netPosition >= 0 ? "text-emerald-700" : "text-amber-700"
+            }`}
+          >
+            net position
+          </div>
+          <div
+            className={`font-serif text-base tabular-nums ${
+              netPosition >= 0 ? "text-emerald-800" : "text-amber-800"
+            }`}
+          >
+            {netPosition >= 0 ? "+" : "−"}
+            {fmtMoney(Math.abs(netPosition))}
+          </div>
+        </div>
+      </div>
     </>
   );
 

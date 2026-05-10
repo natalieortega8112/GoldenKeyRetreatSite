@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { isDbConfigured } from "@/lib/db";
-import { buildOperationsWorkbook, uploadBackupSnapshot } from "@/lib/backup";
+import {
+  buildOperationsWorkbook,
+  uploadBackupSnapshot,
+  pruneOldBackups,
+} from "@/lib/backup";
+
+const BACKUP_KEEP = 30;
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -33,10 +39,19 @@ export async function GET(request: Request) {
   try {
     const buffer = await buildOperationsWorkbook();
     const blob = await uploadBackupSnapshot(buffer);
+    // Best-effort prune. Failures here shouldn't fail the snapshot.
+    let pruned = 0;
+    try {
+      pruned = await pruneOldBackups(BACKUP_KEEP);
+    } catch {
+      pruned = -1;
+    }
     return NextResponse.json({
       ok: true,
       url: blob?.url ?? null,
       size: buffer.length,
+      pruned,
+      keep: BACKUP_KEEP,
       at: new Date().toISOString(),
     });
   } catch (err) {

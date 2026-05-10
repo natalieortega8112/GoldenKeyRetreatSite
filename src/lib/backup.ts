@@ -1,7 +1,7 @@
 // Backup helpers: build an .xlsx snapshot of the operations data and (optionally)
 // upload it to Vercel Blob.
 import ExcelJS from "exceljs";
-import { put, list, type ListBlobResultBlob } from "@vercel/blob";
+import { put, list, del, type ListBlobResultBlob } from "@vercel/blob";
 import {
   listProperties,
   listPropertyItems,
@@ -232,6 +232,21 @@ export async function listBackupSnapshots(): Promise<BackupBlob[]> {
       size: b.size,
     }))
     .sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime());
+}
+
+/**
+ * Delete snapshots older than the `keep` most-recent ones. Used after the
+ * nightly cron uploads a new snapshot so Blob storage doesn't grow forever.
+ * Returns the number of snapshots deleted.
+ */
+export async function pruneOldBackups(keep = 30): Promise<number> {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return 0;
+  const all = await listBackupSnapshots();
+  const stale = all.slice(keep);
+  if (stale.length === 0) return 0;
+  // del() accepts string | string[] — the URL or pathname.
+  await del(stale.map((s) => s.url));
+  return stale.length;
 }
 
 // Used in the meta sheet — silences unused-import warnings if removed.
