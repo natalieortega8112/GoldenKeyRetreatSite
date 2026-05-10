@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { Loader2, Check } from "lucide-react";
 import type { PropertyItem, PropertyItemStatus } from "@/lib/operations";
-import { centsToDollars } from "@/lib/operations";
+import { centsToDollars } from "@/lib/money";
 import { updateBudgetField } from "../actions";
 
 const STATUSES: PropertyItemStatus[] = ["Pending", "Ordered", "Bought"];

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import type { Booking, Property } from "@/lib/operations";
-import { centsToDollars } from "@/lib/operations";
+import { centsToDollars } from "@/lib/money";
 
 type Props = {
   initial?: Booking;

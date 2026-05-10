@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import type { ProductCatalogEntry } from "@/lib/operations";
-import { centsToDollars } from "@/lib/operations";
+import { centsToDollars } from "@/lib/money";
 
 type Props = {
   initial?: ProductCatalogEntry;
