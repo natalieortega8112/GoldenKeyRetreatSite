@@ -19,6 +19,8 @@ export async function updateBudgetField(
     priceDollars?: string | null;
     store?: string;
     status?: PropertyItemStatus;
+    qty?: number;
+    notes?: string;
   },
 ) {
   if (!(await isAdmin())) redirect("/admin/login");
@@ -31,6 +33,8 @@ export async function updateBudgetField(
   }
   if (patch.store !== undefined) update.store = patch.store;
   if (patch.status !== undefined) update.status = patch.status;
+  if (patch.qty !== undefined) update.qty = Math.max(0, Math.trunc(patch.qty));
+  if (patch.notes !== undefined) update.notes = patch.notes;
   await updatePropertyItem(id, update);
   refresh();
 }

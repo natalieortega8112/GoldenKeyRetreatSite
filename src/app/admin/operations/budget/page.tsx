@@ -147,7 +147,7 @@ export default async function BudgetPage({
                           <th className="px-2 py-2 font-normal text-left">
                             Item
                           </th>
-                          <th className="px-2 py-2 font-normal text-center w-12">
+                          <th className="px-2 py-2 font-normal text-center w-16">
                             Qty
                           </th>
                           <th className="px-2 py-2 font-normal text-right w-24">

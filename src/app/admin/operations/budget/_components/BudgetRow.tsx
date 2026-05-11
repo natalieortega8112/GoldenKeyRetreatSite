@@ -19,6 +19,8 @@ export function BudgetRow({ item }: { item: PropertyItem }) {
   const [price, setPrice] = useState(centsToDollars(item.actualCostCents));
   const [store, setStore] = useState(item.store);
   const [status, setStatus] = useState<PropertyItemStatus>(item.status);
+  const [qty, setQty] = useState(item.qty.toString());
+  const [notes, setNotes] = useState(item.notes);
   const [pending, startTransition] = useTransition();
   const [savedFlash, setSavedFlash] = useState(false);
 
@@ -55,24 +57,49 @@ export function BudgetRow({ item }: { item: PropertyItem }) {
       flashSaved();
     });
   };
+  const saveQty = () => {
+    const n = Number(qty);
+    if (!Number.isFinite(n) || n === item.qty) return;
+    startTransition(async () => {
+      await updateBudgetField(item.id, { qty: Math.max(0, Math.trunc(n)) });
+      flashSaved();
+    });
+  };
+  const saveNotes = () => {
+    if (notes === item.notes) return;
+    startTransition(async () => {
+      await updateBudgetField(item.id, { notes });
+      flashSaved();
+    });
+  };
 
-  const qtyN = item.qty;
+  const qtyN = Number(qty);
+  const qtyEff = Number.isFinite(qtyN) && qty !== "" ? qtyN : item.qty;
   const priceN = Number(price);
   const totalCost =
-    Number.isFinite(priceN) && price !== "" ? qtyN * priceN : null;
+    Number.isFinite(priceN) && price !== "" ? qtyEff * priceN : null;
 
   return (
     <tr className="border-t border-line/60 hover:bg-cream-soft/40">
       <td className="px-2 py-2 align-middle">
         <span className="text-sm text-ink">{item.item}</span>
-        {item.notes && (
-          <div className="text-[11px] italic text-charcoal/60 mt-0.5">
-            {item.notes}
-          </div>
-        )}
+        <input
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          onBlur={saveNotes}
+          placeholder="add note…"
+          className="block w-full bg-transparent border-none px-1 py-0.5 mt-0.5 rounded text-[11px] italic text-charcoal/60 hover:bg-white focus:bg-white focus:ring-1 focus:ring-gold/40 focus:outline-none placeholder:not-italic placeholder:text-line"
+        />
       </td>
-      <td className="px-2 py-2 align-middle text-center text-sm text-muted w-12">
-        {item.qty}
+      <td className="px-2 py-2 align-middle w-16">
+        <input
+          type="number"
+          min={0}
+          value={qty}
+          onChange={(e) => setQty(e.target.value)}
+          onBlur={saveQty}
+          className="w-12 bg-transparent border-none px-1 py-1 rounded hover:bg-white focus:bg-white focus:ring-1 focus:ring-gold/40 focus:outline-none text-sm text-ink text-center mx-auto block"
+        />
       </td>
       <td className="px-2 py-2 align-middle w-24">
         <DollarInput
