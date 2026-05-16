@@ -9,6 +9,7 @@ import {
 } from "@/lib/operations";
 import type { PropertyItem } from "@/lib/operations";
 import { BudgetRow } from "./_components/BudgetRow";
+import { AddBudgetItemRow } from "./_components/AddBudgetItemRow";
 import { PropertySelector } from "../inventory/_components/PropertySelector";
 
 export const revalidate = 0;
@@ -45,14 +46,14 @@ export default async function BudgetPage({
   ];
 
   // Totals
-  const totalBudget = items.reduce((s, i) => s + (i.budgetCents ?? 0), 0);
   const totalSpent = items.reduce(
     (s, i) =>
-      s + (i.actualCostCents != null ? (i.actualCostCents * i.qty) : 0),
+      s + (i.actualCostCents != null ? i.actualCostCents * i.qty : 0),
     0,
   );
-  const remaining = totalBudget - totalSpent;
-  const pctUsed = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
+  const totalItems = items.length;
+  const bought = items.filter((i) => i.status === "Bought").length;
+  const pctBought = totalItems > 0 ? (bought / totalItems) * 100 : 0;
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-10 py-8 sm:py-12">
@@ -65,8 +66,8 @@ export default async function BudgetPage({
             Budget Tracker
           </h1>
           <p className="text-sm text-charcoal/70 mt-1">
-            Plan vs. actual cost for every item, per property. Edit dollars,
-            store, or status inline.
+            What you actually paid for each item, per property. Edit qty,
+            price, store, or status inline. Total is qty × price/unit.
           </p>
         </div>
 
@@ -89,32 +90,32 @@ export default async function BudgetPage({
       ) : (
         <>
           {/* Top stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
-            <Stat label="Total Budget" value={fmt(totalBudget)} />
-            <Stat label="Total Spent" value={fmt(totalSpent)} />
-            <Stat label="Remaining" value={fmt(remaining)} />
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6">
+            <Stat label="Total Spent" value={fmt(totalSpent)} accent />
             <Stat
-              label="% of Budget Used"
-              value={pctUsed.toFixed(1) + "%"}
-              accent
+              label="Items Bought"
+              value={`${bought}/${totalItems}`}
             />
+            <Stat label="% Bought" value={pctBought.toFixed(0) + "%"} />
           </div>
 
           {/* Per-category roll-ups */}
           <div className="space-y-6">
             {orderedCats.map((cat) => {
               const list = byCat.get(cat) ?? [];
-              const catBudget = list.reduce(
-                (s, i) => s + (i.budgetCents ?? 0),
-                0,
-              );
               const catSpent = list.reduce(
                 (s, i) =>
                   s +
                   (i.actualCostCents != null ? i.actualCostCents * i.qty : 0),
                 0,
               );
-              const catPct = catBudget > 0 ? (catSpent / catBudget) * 100 : 0;
+              const catBought = list.filter((i) => i.status === "Bought").length;
+              const catPct =
+                list.length > 0 ? (catBought / list.length) * 100 : 0;
+              const maxOrder = list.reduce(
+                (m, i) => Math.max(m, i.sortOrder),
+                0,
+              );
               return (
                 <section
                   key={cat}
@@ -124,15 +125,13 @@ export default async function BudgetPage({
                     <div className="flex items-baseline gap-3">
                       <h2 className="font-serif text-base text-ink">{cat}</h2>
                       <span className="text-[10px] uppercase tracking-[0.2em] text-gold-deep">
-                        {fmt(catSpent)} / {fmt(catBudget)}
+                        {fmt(catSpent)} spent · {catBought}/{list.length} bought
                       </span>
                     </div>
                     <div className="w-32 sm:w-48">
                       <div className="h-1.5 bg-cream-soft rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full ${
-                            catPct > 100 ? "bg-red-400" : "bg-gold"
-                          }`}
+                          className="h-full bg-gold rounded-full"
                           style={{
                             width: Math.min(100, Math.max(0, catPct)) + "%",
                           }}
@@ -151,9 +150,6 @@ export default async function BudgetPage({
                             Qty
                           </th>
                           <th className="px-2 py-2 font-normal text-right w-24">
-                            Budget
-                          </th>
-                          <th className="px-2 py-2 font-normal text-right w-24">
                             Price/Unit
                           </th>
                           <th className="px-2 py-2 font-normal text-right w-24">
@@ -165,13 +161,20 @@ export default async function BudgetPage({
                           <th className="px-2 py-2 font-normal text-center w-32">
                             Status
                           </th>
-                          <th className="w-8"></th>
+                          <th className="w-12"></th>
                         </tr>
                       </thead>
                       <tbody>
                         {list.map((it) => (
                           <BudgetRow key={it.id} item={it} />
                         ))}
+                        {selectedId && (
+                          <AddBudgetItemRow
+                            propertyId={selectedId}
+                            category={cat}
+                            nextSortOrder={maxOrder + 1}
+                          />
+                        )}
                       </tbody>
                     </table>
                   </div>

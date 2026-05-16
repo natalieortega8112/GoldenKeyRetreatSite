@@ -3,7 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/auth";
-import { updatePropertyItem, dollarsToCents } from "@/lib/operations";
+import {
+  createPropertyItem,
+  deletePropertyItem,
+  updatePropertyItem,
+  dollarsToCents,
+} from "@/lib/operations";
 import type { PropertyItemStatus } from "@/lib/operations";
 
 function refresh() {
@@ -36,5 +41,32 @@ export async function updateBudgetField(
   if (patch.qty !== undefined) update.qty = Math.max(0, Math.trunc(patch.qty));
   if (patch.notes !== undefined) update.notes = patch.notes;
   await updatePropertyItem(id, update);
+  refresh();
+}
+
+export async function addBudgetItem(input: {
+  propertyId: string;
+  category: string;
+  item: string;
+  qty: number;
+  notes: string;
+  sortOrder: number;
+}) {
+  if (!(await isAdmin())) redirect("/admin/login");
+  await createPropertyItem({
+    ...input,
+    qty: Math.max(0, Math.trunc(input.qty || 1)),
+    budgetCents: null,
+    actualCostCents: null,
+    store: "",
+    status: "Pending",
+    hasIt: false,
+  });
+  refresh();
+}
+
+export async function removeBudgetItem(id: string) {
+  if (!(await isAdmin())) redirect("/admin/login");
+  await deletePropertyItem(id);
   refresh();
 }
