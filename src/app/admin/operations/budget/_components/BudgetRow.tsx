@@ -20,6 +20,7 @@ export function BudgetRow({ item }: { item: PropertyItem }) {
   const [status, setStatus] = useState<PropertyItemStatus>(item.status);
   const [qty, setQty] = useState(item.qty.toString());
   const [notes, setNotes] = useState(item.notes);
+  const [itemName, setItemName] = useState(item.item);
   const [pending, startTransition] = useTransition();
   const [savedFlash, setSavedFlash] = useState(false);
 
@@ -64,6 +65,17 @@ export function BudgetRow({ item }: { item: PropertyItem }) {
       flashSaved();
     });
   };
+  const saveItemName = () => {
+    const trimmed = itemName.trim();
+    if (!trimmed || trimmed === item.item) {
+      if (!trimmed) setItemName(item.item); // revert if cleared
+      return;
+    }
+    startTransition(async () => {
+      await updateBudgetField(item.id, { item: trimmed });
+      flashSaved();
+    });
+  };
   const onDelete = () => {
     if (!confirm(`Delete "${item.item}"?`)) return;
     startTransition(async () => {
@@ -80,7 +92,12 @@ export function BudgetRow({ item }: { item: PropertyItem }) {
   return (
     <tr className="border-t border-line/60 hover:bg-cream-soft/40">
       <td className="px-2 py-2 align-middle">
-        <span className="text-sm text-ink">{item.item}</span>
+        <input
+          value={itemName}
+          onChange={(e) => setItemName(e.target.value)}
+          onBlur={saveItemName}
+          className="block w-full bg-transparent border-none px-1 py-0.5 rounded text-sm text-ink hover:bg-white focus:bg-white focus:ring-1 focus:ring-gold/40 focus:outline-none"
+        />
         <input
           value={notes}
           onChange={(e) => setNotes(e.target.value)}

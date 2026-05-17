@@ -26,6 +26,7 @@ export async function updateBudgetField(
     status?: PropertyItemStatus;
     qty?: number;
     notes?: string;
+    item?: string;
   },
 ) {
   if (!(await isAdmin())) redirect("/admin/login");
@@ -40,6 +41,10 @@ export async function updateBudgetField(
   if (patch.status !== undefined) update.status = patch.status;
   if (patch.qty !== undefined) update.qty = Math.max(0, Math.trunc(patch.qty));
   if (patch.notes !== undefined) update.notes = patch.notes;
+  if (patch.item !== undefined) {
+    const trimmed = patch.item.trim();
+    if (trimmed) update.item = trimmed;
+  }
   await updatePropertyItem(id, update);
   refresh();
 }
