@@ -11,6 +11,7 @@ import type { PropertyItem } from "@/lib/operations";
 import { BudgetRow } from "./_components/BudgetRow";
 import { AddBudgetItemRow } from "./_components/AddBudgetItemRow";
 import { CategorySection } from "./_components/CategorySection";
+import { QuickAddItem } from "./_components/QuickAddItem";
 import { PropertySelector } from "../inventory/_components/PropertySelector";
 
 export const revalidate = 0;
@@ -102,6 +103,25 @@ export default async function BudgetPage({
             />
             <Stat label="% Bought" value={pctBought.toFixed(0) + "%"} />
           </div>
+
+          {/* Quick Add — single row at the top, category dropdown picks
+              which section the new row lands in. */}
+          {selectedId && (
+            <QuickAddItem
+              propertyId={selectedId}
+              categories={orderedCats}
+              nextSortOrderByCategory={Object.fromEntries(
+                orderedCats.map((c) => {
+                  const list = byCat.get(c) ?? [];
+                  const maxOrder = list.reduce(
+                    (m, i) => Math.max(m, i.sortOrder),
+                    0,
+                  );
+                  return [c, maxOrder + 1];
+                }),
+              )}
+            />
+          )}
 
           {/* Per-category roll-ups */}
           <div className="space-y-6">
