@@ -5,7 +5,7 @@ import { isDbConfigured } from "@/lib/db";
 import {
   listProperties,
   listPropertyItems,
-  DEFAULT_CATEGORIES,
+  listCategoriesForProperty,
 } from "@/lib/operations";
 import type { PropertyItem } from "@/lib/operations";
 import { BudgetRow } from "./_components/BudgetRow";
@@ -31,9 +31,12 @@ export default async function BudgetPage({
       ? params.property
       : properties[0]?.id;
 
-  const items = selectedId
-    ? await listPropertyItems(selectedId).catch(() => [])
-    : [];
+  const [items, categoryMeta] = selectedId
+    ? await Promise.all([
+        listPropertyItems(selectedId).catch(() => []),
+        listCategoriesForProperty(selectedId).catch(() => []),
+      ])
+    : [[], []];
 
   // Group by category
   const byCat = new Map<string, PropertyItem[]>();
@@ -42,10 +45,18 @@ export default async function BudgetPage({
     list.push(it);
     byCat.set(it.category, list);
   }
+  // Source of truth for order + budget = property_categories metadata.
+  // Include any category that has items but somehow isn't in the meta yet
+  // (defensive — listCategoriesForProperty back-fills, but stale state is possible).
+  const metaNames = new Set(categoryMeta.map((c) => c.name));
+  const extras = Array.from(byCat.keys()).filter((c) => !metaNames.has(c));
   const orderedCats = [
-    ...DEFAULT_CATEGORIES.filter((c) => byCat.has(c)),
-    ...Array.from(byCat.keys()).filter((c) => !DEFAULT_CATEGORIES.includes(c)),
+    ...categoryMeta.map((c) => c.name),
+    ...extras,
   ];
+  const budgetByCat = new Map(
+    categoryMeta.map((c) => [c.name, c.budgetCents] as const),
+  );
 
   // Totals
   const totalSpent = items.reduce(
@@ -125,7 +136,7 @@ export default async function BudgetPage({
 
           {/* Per-category roll-ups */}
           <div className="space-y-6">
-            {orderedCats.map((cat) => {
+            {orderedCats.map((cat, idx) => {
               const list = byCat.get(cat) ?? [];
               const catSpent = list.reduce(
                 (s, i) =>
@@ -134,32 +145,22 @@ export default async function BudgetPage({
                 0,
               );
               const catBought = list.filter((i) => i.status === "Bought").length;
-              const catPct =
-                list.length > 0 ? (catBought / list.length) * 100 : 0;
               const maxOrder = list.reduce(
                 (m, i) => Math.max(m, i.sortOrder),
                 0,
               );
               return (
-                <CategorySection key={cat} category={cat}>
-                  <header className="flex items-center justify-between px-4 py-3 bg-gold/5 border-b border-line">
-                    <div className="flex items-baseline gap-3">
-                      <h2 className="font-serif text-base text-ink">{cat}</h2>
-                      <span className="text-[10px] uppercase tracking-[0.2em] text-gold-deep">
-                        {fmt(catSpent)} spent · {catBought}/{list.length} bought
-                      </span>
-                    </div>
-                    <div className="w-32 sm:w-48">
-                      <div className="h-1.5 bg-cream-soft rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gold rounded-full"
-                          style={{
-                            width: Math.min(100, Math.max(0, catPct)) + "%",
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </header>
+                <CategorySection
+                  key={cat}
+                  propertyId={selectedId!}
+                  category={cat}
+                  budgetCents={budgetByCat.get(cat) ?? null}
+                  spentCents={catSpent}
+                  bought={catBought}
+                  total={list.length}
+                  canMoveUp={idx > 0}
+                  canMoveDown={idx < orderedCats.length - 1}
+                >
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>

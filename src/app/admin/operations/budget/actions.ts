@@ -8,6 +8,9 @@ import {
   deletePropertyItem,
   moveItemToCategory,
   updatePropertyItem,
+  renameCategoryForProperty,
+  setCategoryBudget,
+  moveCategoryOrder,
   dollarsToCents,
 } from "@/lib/operations";
 import type { PropertyItemStatus } from "@/lib/operations";
@@ -90,5 +93,42 @@ export async function removeBudgetItem(id: string) {
 export async function moveBudgetItemToCategory(id: string, newCategory: string) {
   if (!(await isAdmin())) redirect("/admin/login");
   await moveItemToCategory(id, newCategory);
+  refresh();
+}
+
+export async function renameCategoryAction(
+  propertyId: string,
+  oldName: string,
+  newName: string,
+): Promise<{ ok: boolean; reason?: string }> {
+  if (!(await isAdmin())) redirect("/admin/login");
+  const trimmed = newName.trim();
+  if (!trimmed) return { ok: false, reason: "Name can't be empty" };
+  if (trimmed === oldName) return { ok: true };
+  const ok = await renameCategoryForProperty(propertyId, oldName, trimmed);
+  if (!ok) {
+    return { ok: false, reason: `A category named "${trimmed}" already exists.` };
+  }
+  refresh();
+  return { ok: true };
+}
+
+export async function setCategoryBudgetAction(
+  propertyId: string,
+  name: string,
+  budgetDollars: string | null,
+) {
+  if (!(await isAdmin())) redirect("/admin/login");
+  await setCategoryBudget(propertyId, name, dollarsToCents(budgetDollars));
+  refresh();
+}
+
+export async function reorderCategoryAction(
+  propertyId: string,
+  name: string,
+  direction: "up" | "down",
+) {
+  if (!(await isAdmin())) redirect("/admin/login");
+  await moveCategoryOrder(propertyId, name, direction);
   refresh();
 }

@@ -162,6 +162,20 @@ async function ensureSchema() {
       `;
       await sql`CREATE INDEX IF NOT EXISTS bookings_property_idx ON bookings(property_id)`;
       await sql`CREATE INDEX IF NOT EXISTS bookings_checkin_idx ON bookings(check_in DESC)`;
+
+      // Per-property category metadata: rename + per-section budget + display order.
+      // Composite PK (property_id, name) means renaming = delete + insert in a tx.
+      await sql`
+        CREATE TABLE IF NOT EXISTS property_categories (
+          property_id   TEXT NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+          name          TEXT NOT NULL,
+          budget_cents  INT,
+          sort_order    INT NOT NULL DEFAULT 0,
+          created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          PRIMARY KEY (property_id, name)
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS property_categories_order_idx ON property_categories(property_id, sort_order)`;
     })();
   }
   await initPromise;

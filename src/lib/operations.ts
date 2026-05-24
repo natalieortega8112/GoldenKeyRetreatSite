@@ -255,6 +255,8 @@ export async function createPropertyItem(
   await ensureSchema();
   const sql = getSql();
   const id = genId();
+  // Make sure the category row exists so it shows up in ordering + has a budget slot.
+  await ensureCategory(input.propertyId, input.category);
   await sql`
     INSERT INTO property_items (
       id, property_id, category, item, qty, notes,
@@ -343,6 +345,193 @@ export async function deletePropertyItem(id: string): Promise<void> {
   await ensureSchema();
   const sql = getSql();
   await sql`DELETE FROM property_items WHERE id = ${id}`;
+}
+
+// ─── Per-category metadata (rename / budget / order) ────────
+export type CategoryMeta = {
+  name: string;
+  budgetCents: number | null;
+  sortOrder: number;
+};
+
+type CategoryRow = {
+  name: string;
+  budget_cents: number | null;
+  sort_order: number;
+};
+
+/**
+ * Returns the categories for a property in display order. Lazily initializes
+ * property_categories rows on first call (so older properties created before
+ * this table existed get their metadata back-filled from their items).
+ */
+export async function listCategoriesForProperty(
+  propertyId: string,
+): Promise<CategoryMeta[]> {
+  if (!isDbConfigured()) return [];
+  await ensureSchema();
+  const sql = getSql();
+  let rows = await sql<CategoryRow[]>`
+    SELECT name, budget_cents, sort_order
+    FROM property_categories
+    WHERE property_id = ${propertyId}
+    ORDER BY sort_order ASC, name ASC
+  `;
+  if (rows.length === 0) {
+    // Back-fill: derive from distinct categories already in items.
+    const itemCats = await sql<{ category: string; min_order: number }[]>`
+      SELECT category, MIN(sort_order) AS min_order
+      FROM property_items
+      WHERE property_id = ${propertyId}
+      GROUP BY category
+      ORDER BY min_order ASC, category ASC
+    `;
+    let order = 0;
+    // Use DEFAULT_CATEGORIES ordering as a hint when present.
+    const sorted = [...itemCats].sort((a, b) => {
+      const ai = DEFAULT_CATEGORIES.indexOf(a.category);
+      const bi = DEFAULT_CATEGORIES.indexOf(b.category);
+      if (ai === -1 && bi === -1) return a.category.localeCompare(b.category);
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+    for (const r of sorted) {
+      await sql`
+        INSERT INTO property_categories (property_id, name, sort_order)
+        VALUES (${propertyId}, ${r.category}, ${order})
+        ON CONFLICT (property_id, name) DO NOTHING
+      `;
+      order += 1;
+    }
+    rows = await sql<CategoryRow[]>`
+      SELECT name, budget_cents, sort_order
+      FROM property_categories
+      WHERE property_id = ${propertyId}
+      ORDER BY sort_order ASC, name ASC
+    `;
+  }
+  return rows.map((r) => ({
+    name: r.name,
+    budgetCents: r.budget_cents,
+    sortOrder: r.sort_order,
+  }));
+}
+
+/** Ensure a single category row exists (used when a user adds a brand-new category via the UI). */
+export async function ensureCategory(
+  propertyId: string,
+  name: string,
+): Promise<void> {
+  if (!isDbConfigured()) return;
+  await ensureSchema();
+  const sql = getSql();
+  const maxRows = await sql<{ next_order: number }[]>`
+    SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_order
+    FROM property_categories
+    WHERE property_id = ${propertyId}
+  `;
+  const nextOrder = Number(maxRows[0]?.next_order ?? 0);
+  await sql`
+    INSERT INTO property_categories (property_id, name, sort_order)
+    VALUES (${propertyId}, ${name}, ${nextOrder})
+    ON CONFLICT (property_id, name) DO NOTHING
+  `;
+}
+
+/**
+ * Atomically rename a category for one property: updates property_categories
+ * and every property_items row in the old category to the new name.
+ * Returns false if the new name already exists (would collide).
+ */
+export async function renameCategoryForProperty(
+  propertyId: string,
+  oldName: string,
+  newName: string,
+): Promise<boolean> {
+  if (!isDbConfigured()) return false;
+  const trimmed = newName.trim();
+  if (!trimmed || trimmed === oldName) return false;
+  await ensureSchema();
+  const sql = getSql();
+  const collision = await sql<{ name: string }[]>`
+    SELECT name FROM property_categories
+    WHERE property_id = ${propertyId} AND name = ${trimmed}
+    LIMIT 1
+  `;
+  if (collision[0]) return false;
+  await sql.begin(async (tx) => {
+    await tx`
+      UPDATE property_categories
+      SET name = ${trimmed}
+      WHERE property_id = ${propertyId} AND name = ${oldName}
+    `;
+    await tx`
+      UPDATE property_items
+      SET category = ${trimmed}
+      WHERE property_id = ${propertyId} AND category = ${oldName}
+    `;
+  });
+  return true;
+}
+
+export async function setCategoryBudget(
+  propertyId: string,
+  name: string,
+  budgetCents: number | null,
+): Promise<void> {
+  if (!isDbConfigured()) return;
+  await ensureSchema();
+  const sql = getSql();
+  await sql`
+    UPDATE property_categories
+    SET budget_cents = ${budgetCents}
+    WHERE property_id = ${propertyId} AND name = ${name}
+  `;
+}
+
+/**
+ * Swap a category's sort_order with the adjacent neighbor in the given
+ * direction. Returns true on a successful swap.
+ */
+export async function moveCategoryOrder(
+  propertyId: string,
+  name: string,
+  direction: "up" | "down",
+): Promise<boolean> {
+  if (!isDbConfigured()) return false;
+  await ensureSchema();
+  const sql = getSql();
+  const current = await sql<{ sort_order: number }[]>`
+    SELECT sort_order FROM property_categories
+    WHERE property_id = ${propertyId} AND name = ${name}
+    LIMIT 1
+  `;
+  if (!current[0]) return false;
+  const curOrder = current[0].sort_order;
+  const neighbor = direction === "up"
+    ? await sql<{ name: string; sort_order: number }[]>`
+        SELECT name, sort_order FROM property_categories
+        WHERE property_id = ${propertyId} AND sort_order < ${curOrder}
+        ORDER BY sort_order DESC LIMIT 1
+      `
+    : await sql<{ name: string; sort_order: number }[]>`
+        SELECT name, sort_order FROM property_categories
+        WHERE property_id = ${propertyId} AND sort_order > ${curOrder}
+        ORDER BY sort_order ASC LIMIT 1
+      `;
+  if (!neighbor[0]) return false;
+  await sql.begin(async (tx) => {
+    await tx`
+      UPDATE property_categories SET sort_order = ${neighbor[0].sort_order}
+      WHERE property_id = ${propertyId} AND name = ${name}
+    `;
+    await tx`
+      UPDATE property_categories SET sort_order = ${curOrder}
+      WHERE property_id = ${propertyId} AND name = ${neighbor[0].name}
+    `;
+  });
+  return true;
 }
 
 /**
@@ -686,7 +875,15 @@ export async function seedPropertyItems(propertyId: string): Promise<void> {
   await ensureSchema();
   const sql = getSql();
   let order = 0;
+  let catOrder = 0;
   for (const [category, items] of Object.entries(SEED_ITEMS)) {
+    // Seed the category metadata row alongside the items.
+    await sql`
+      INSERT INTO property_categories (property_id, name, sort_order)
+      VALUES (${propertyId}, ${category}, ${catOrder})
+      ON CONFLICT (property_id, name) DO NOTHING
+    `;
+    catOrder += 1;
     for (const it of items) {
       const id = genId();
       await sql`
