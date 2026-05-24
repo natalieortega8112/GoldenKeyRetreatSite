@@ -345,6 +345,35 @@ export async function deletePropertyItem(id: string): Promise<void> {
   await sql`DELETE FROM property_items WHERE id = ${id}`;
 }
 
+/**
+ * Move a property_item to a different category. Recomputes sort_order so
+ * the moved row lands at the bottom of the target category.
+ */
+export async function moveItemToCategory(
+  id: string,
+  newCategory: string,
+): Promise<void> {
+  if (!isDbConfigured()) return;
+  await ensureSchema();
+  const sql = getSql();
+  const propRows = await sql<{ property_id: string; category: string }[]>`
+    SELECT property_id, category FROM property_items WHERE id = ${id} LIMIT 1
+  `;
+  if (!propRows[0]) return;
+  if (propRows[0].category === newCategory) return; // noop
+  const maxRows = await sql<{ next_order: number }[]>`
+    SELECT COALESCE(MAX(sort_order), 0) + 1 AS next_order
+    FROM property_items
+    WHERE property_id = ${propRows[0].property_id} AND category = ${newCategory}
+  `;
+  const nextOrder = Number(maxRows[0]?.next_order ?? 1);
+  await sql`
+    UPDATE property_items
+    SET category = ${newCategory}, sort_order = ${nextOrder}
+    WHERE id = ${id}
+  `;
+}
+
 // ─── ProductCatalog mappers + CRUD ───────────────────────────
 type ProductCatalogRow = {
   id: string;

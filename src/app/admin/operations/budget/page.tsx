@@ -10,6 +10,7 @@ import {
 import type { PropertyItem } from "@/lib/operations";
 import { BudgetRow } from "./_components/BudgetRow";
 import { AddBudgetItemRow } from "./_components/AddBudgetItemRow";
+import { CategorySection } from "./_components/CategorySection";
 import { PropertySelector } from "../inventory/_components/PropertySelector";
 
 export const revalidate = 0;
@@ -67,7 +68,10 @@ export default async function BudgetPage({
           </h1>
           <p className="text-sm text-charcoal/70 mt-1">
             What you actually paid for each item, per property. Edit qty,
-            price, store, or status inline. Total is qty × price/unit.
+            price, store, or status inline. Total is qty × price/unit.{" "}
+            <span className="text-charcoal/50">
+              Drag the grip handle on any row to move it to another category.
+            </span>
           </p>
         </div>
 
@@ -117,10 +121,7 @@ export default async function BudgetPage({
                 0,
               );
               return (
-                <section
-                  key={cat}
-                  className="bg-white rounded-xl ring-1 ring-line overflow-hidden"
-                >
+                <CategorySection key={cat} category={cat}>
                   <header className="flex items-center justify-between px-4 py-3 bg-gold/5 border-b border-line">
                     <div className="flex items-baseline gap-3">
                       <h2 className="font-serif text-base text-ink">{cat}</h2>
@@ -178,7 +179,7 @@ export default async function BudgetPage({
                       </tbody>
                     </table>
                   </div>
-                </section>
+                </CategorySection>
               );
             })}
           </div>

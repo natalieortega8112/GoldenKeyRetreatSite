@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Loader2, Check, Trash2 } from "lucide-react";
+import { Loader2, Check, Trash2, GripVertical } from "lucide-react";
 import type { PropertyItem, PropertyItemStatus } from "@/lib/operations";
 import { centsToDollars } from "@/lib/money";
 import { updateBudgetField, removeBudgetItem } from "../actions";
@@ -89,22 +89,40 @@ export function BudgetRow({ item }: { item: PropertyItem }) {
   const totalCost =
     Number.isFinite(priceN) && price !== "" ? qtyEff * priceN : null;
 
+  const onDragStart = (e: React.DragEvent<HTMLTableRowElement>) => {
+    e.dataTransfer.setData("text/plain", item.id);
+    e.dataTransfer.setData("application/x-budget-row", item.id);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
   return (
-    <tr className="border-t border-line/60 hover:bg-cream-soft/40">
+    <tr
+      draggable
+      onDragStart={onDragStart}
+      className="border-t border-line/60 hover:bg-cream-soft/40 group cursor-default"
+    >
       <td className="px-2 py-2 align-middle">
-        <input
-          value={itemName}
-          onChange={(e) => setItemName(e.target.value)}
-          onBlur={saveItemName}
-          className="block w-full bg-transparent border-none px-1 py-0.5 rounded text-sm text-ink hover:bg-white focus:bg-white focus:ring-1 focus:ring-gold/40 focus:outline-none"
-        />
-        <input
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          onBlur={saveNotes}
-          placeholder="add note…"
-          className="block w-full bg-transparent border-none px-1 py-0.5 mt-0.5 rounded text-[11px] italic text-charcoal/60 hover:bg-white focus:bg-white focus:ring-1 focus:ring-gold/40 focus:outline-none placeholder:not-italic placeholder:text-line"
-        />
+        <div className="flex items-start gap-1">
+          <GripVertical
+            className="w-3.5 h-3.5 text-line group-hover:text-muted mt-1 shrink-0 cursor-grab active:cursor-grabbing"
+            aria-hidden
+          />
+          <div className="min-w-0 flex-1">
+            <input
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+              onBlur={saveItemName}
+              className="block w-full bg-transparent border-none px-1 py-0.5 rounded text-sm text-ink hover:bg-white focus:bg-white focus:ring-1 focus:ring-gold/40 focus:outline-none"
+            />
+            <input
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              onBlur={saveNotes}
+              placeholder="add note…"
+              className="block w-full bg-transparent border-none px-1 py-0.5 mt-0.5 rounded text-[11px] italic text-charcoal/60 hover:bg-white focus:bg-white focus:ring-1 focus:ring-gold/40 focus:outline-none placeholder:not-italic placeholder:text-line"
+            />
+          </div>
+        </div>
       </td>
       <td className="px-2 py-2 align-middle w-16">
         <input

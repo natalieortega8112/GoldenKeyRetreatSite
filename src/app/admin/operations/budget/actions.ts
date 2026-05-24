@@ -6,6 +6,7 @@ import { isAdmin } from "@/lib/auth";
 import {
   createPropertyItem,
   deletePropertyItem,
+  moveItemToCategory,
   updatePropertyItem,
   dollarsToCents,
 } from "@/lib/operations";
@@ -73,5 +74,11 @@ export async function addBudgetItem(input: {
 export async function removeBudgetItem(id: string) {
   if (!(await isAdmin())) redirect("/admin/login");
   await deletePropertyItem(id);
+  refresh();
+}
+
+export async function moveBudgetItemToCategory(id: string, newCategory: string) {
+  if (!(await isAdmin())) redirect("/admin/login");
+  await moveItemToCategory(id, newCategory);
   refresh();
 }
