@@ -57,15 +57,25 @@ export async function addBudgetItem(input: {
   qty: number;
   notes: string;
   sortOrder: number;
+  priceDollars?: string | null;
+  store?: string;
+  status?: PropertyItemStatus;
 }) {
   if (!(await isAdmin())) redirect("/admin/login");
   await createPropertyItem({
-    ...input,
+    propertyId: input.propertyId,
+    category: input.category,
+    item: input.item,
     qty: Math.max(0, Math.trunc(input.qty || 1)),
+    notes: input.notes,
+    sortOrder: input.sortOrder,
     budgetCents: null,
-    actualCostCents: null,
-    store: "",
-    status: "Pending",
+    actualCostCents:
+      input.priceDollars !== undefined
+        ? dollarsToCents(input.priceDollars)
+        : null,
+    store: input.store ?? "",
+    status: input.status ?? "Pending",
     hasIt: false,
   });
   refresh();
