@@ -5,7 +5,6 @@ import { put, list, del, type ListBlobResultBlob } from "@vercel/blob";
 import {
   listProperties,
   listPropertyItems,
-  listCatalog,
   listBookings,
   listExpenses,
   listTaxDocuments,
@@ -33,15 +32,13 @@ function styleHeader(row: ExcelJS.Row) {
 }
 
 export async function buildOperationsWorkbook(): Promise<Buffer> {
-  const [properties, items, catalog, bookings, expenses, taxDocs] =
-    await Promise.all([
-      listProperties(),
-      listPropertyItems(),
-      listCatalog(),
-      listBookings(),
-      listExpenses(),
-      listTaxDocuments(),
-    ]);
+  const [properties, items, bookings, expenses, taxDocs] = await Promise.all([
+    listProperties(),
+    listPropertyItems(),
+    listBookings(),
+    listExpenses(),
+    listTaxDocuments(),
+  ]);
   const propertyName = (id: string | null) =>
     id ? (properties.find((p) => p.id === id)?.name ?? id) : "LLC / Business-wide";
 
@@ -112,35 +109,6 @@ export async function buildOperationsWorkbook(): Promise<Buffer> {
   ["budget", "price", "total"].forEach((k) => {
     itemSheet.getColumn(k).numFmt = '"$"#,##0.00';
   });
-
-  // ── Product Links sheet ──
-  const linkSheet = wb.addWorksheet("Product Links");
-  linkSheet.columns = [
-    { header: "Category", key: "category", width: 22 },
-    { header: "Item", key: "item", width: 28 },
-    { header: "Brand / Model", key: "brand", width: 26 },
-    { header: "Store", key: "store", width: 18 },
-    { header: "Link", key: "link", width: 50 },
-    { header: "Price ($)", key: "price", width: 12 },
-    { header: "Notes", key: "notes", width: 28 },
-    { header: "Last Verified", key: "verified", width: 18 },
-  ];
-  styleHeader(linkSheet.getRow(1));
-  for (const c of catalog) {
-    linkSheet.addRow({
-      category: c.category,
-      item: c.item,
-      brand: c.brand,
-      store: c.store,
-      link: c.linkUrl,
-      price: c.priceCents != null ? c.priceCents / 100 : null,
-      notes: c.notes,
-      verified: c.lastVerifiedAt
-        ? new Date(c.lastVerifiedAt).toLocaleDateString()
-        : "",
-    });
-  }
-  linkSheet.getColumn("price").numFmt = '"$"#,##0.00';
 
   // ── Bookings sheet ──
   const bookSheet = wb.addWorksheet("Bookings");
@@ -240,7 +208,6 @@ export async function buildOperationsWorkbook(): Promise<Buffer> {
   metaSheet.addRow({ key: "Snapshot taken", value: new Date().toISOString() });
   metaSheet.addRow({ key: "Properties", value: properties.length });
   metaSheet.addRow({ key: "Inventory rows", value: items.length });
-  metaSheet.addRow({ key: "Product links", value: catalog.length });
   metaSheet.addRow({ key: "Bookings", value: bookings.length });
   metaSheet.addRow({ key: "Expenses", value: expenses.length });
   metaSheet.addRow({ key: "Tax documents", value: taxDocs.length });

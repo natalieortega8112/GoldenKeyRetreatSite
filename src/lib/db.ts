@@ -125,23 +125,10 @@ async function ensureSchema() {
       await sql`CREATE INDEX IF NOT EXISTS property_items_property_idx ON property_items(property_id)`;
       await sql`CREATE INDEX IF NOT EXISTS property_items_category_idx ON property_items(property_id, category)`;
 
-      // product_catalog: shared link library — one row per product (brand, store, URL).
-      // Not tied to a specific property; same product may be used at multiple units.
-      await sql`
-        CREATE TABLE IF NOT EXISTS product_catalog (
-          id                  TEXT PRIMARY KEY,
-          category            TEXT NOT NULL,
-          item                TEXT NOT NULL,
-          brand               TEXT NOT NULL DEFAULT '',
-          store               TEXT NOT NULL DEFAULT '',
-          link_url            TEXT NOT NULL DEFAULT '',
-          price_cents         INT,
-          notes               TEXT NOT NULL DEFAULT '',
-          last_verified_at    TIMESTAMPTZ,
-          created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        );
-      `;
-      await sql`CREATE INDEX IF NOT EXISTS product_catalog_category_idx ON product_catalog(category)`;
+      // product_catalog table was removed 2026-07-20 — owner didn't want to
+      // track where each item was purchased. Drop the table if it still exists
+      // so old data is fully erased. Safe: no FKs pointed at it.
+      await sql`DROP TABLE IF EXISTS product_catalog`;
 
       // bookings: revenue/income tracking per property — answers "what's bringing in money?"
       await sql`

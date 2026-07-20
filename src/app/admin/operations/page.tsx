@@ -4,7 +4,6 @@ import {
   Building2,
   ListChecks,
   Wallet,
-  Link as LinkIcon,
   CalendarRange,
   Database,
   ArrowRight,
@@ -180,13 +179,6 @@ export default async function OperationsHomePage({
               ? Math.round((totals.spentCents / totals.budgetCents) * 100) + "%"
               : undefined
           }
-          disabled={demo}
-        />
-        <SectionCard
-          href="/admin/operations/links"
-          icon={<LinkIcon className="w-5 h-5" />}
-          title="Product Links"
-          desc="Where to buy / re-buy each item."
           disabled={demo}
         />
         <SectionCard

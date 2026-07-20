@@ -41,21 +41,6 @@ export type PropertyItemInput = Omit<
   "id" | "createdAt" | "lastPurchasedAt"
 > & { lastPurchasedAt?: string | null };
 
-export type ProductCatalogEntry = {
-  id: string;
-  category: string;
-  item: string;
-  brand: string;
-  store: string;
-  linkUrl: string;
-  priceCents: number | null;
-  notes: string;
-  lastVerifiedAt: string | null;
-  createdAt: string;
-};
-
-export type ProductCatalogInput = Omit<ProductCatalogEntry, "id" | "createdAt">;
-
 export type Booking = {
   id: string;
   propertyId: string;
@@ -595,106 +580,6 @@ export async function moveItemToCategory(
     SET category = ${newCategory}, sort_order = ${nextOrder}
     WHERE id = ${id}
   `;
-}
-
-// ─── ProductCatalog mappers + CRUD ───────────────────────────
-type ProductCatalogRow = {
-  id: string;
-  category: string;
-  item: string;
-  brand: string;
-  store: string;
-  link_url: string;
-  price_cents: number | null;
-  notes: string;
-  last_verified_at: string | Date | null;
-  created_at: string | Date;
-};
-
-function rowToCatalog(row: ProductCatalogRow): ProductCatalogEntry {
-  return {
-    id: row.id,
-    category: row.category,
-    item: row.item,
-    brand: row.brand,
-    store: row.store,
-    linkUrl: row.link_url,
-    priceCents: row.price_cents,
-    notes: row.notes,
-    lastVerifiedAt: isoOrNull(row.last_verified_at),
-    createdAt: isoOrNull(row.created_at) ?? new Date().toISOString(),
-  };
-}
-
-export async function listCatalog(): Promise<ProductCatalogEntry[]> {
-  if (!isDbConfigured()) return [];
-  await ensureSchema();
-  const sql = getSql();
-  const rows = await sql<ProductCatalogRow[]>`
-    SELECT * FROM product_catalog ORDER BY category ASC, item ASC
-  `;
-  return rows.map(rowToCatalog);
-}
-
-export async function createCatalogEntry(
-  input: ProductCatalogInput,
-): Promise<ProductCatalogEntry> {
-  if (!isDbConfigured()) throw new Error("Database is not configured.");
-  await ensureSchema();
-  const sql = getSql();
-  const id = genId();
-  await sql`
-    INSERT INTO product_catalog (
-      id, category, item, brand, store, link_url, price_cents, notes, last_verified_at
-    ) VALUES (
-      ${id},
-      ${input.category},
-      ${input.item},
-      ${input.brand},
-      ${input.store},
-      ${input.linkUrl},
-      ${input.priceCents},
-      ${input.notes},
-      ${input.lastVerifiedAt ?? null}
-    )
-  `;
-  const rows = await sql<ProductCatalogRow[]>`
-    SELECT * FROM product_catalog WHERE id = ${id} LIMIT 1
-  `;
-  if (!rows[0]) throw new Error("Failed to create catalog entry");
-  return rowToCatalog(rows[0]);
-}
-
-export async function updateCatalogEntry(
-  id: string,
-  input: ProductCatalogInput,
-): Promise<ProductCatalogEntry | null> {
-  if (!isDbConfigured()) return null;
-  await ensureSchema();
-  const sql = getSql();
-  await sql`
-    UPDATE product_catalog SET
-      category = ${input.category},
-      item = ${input.item},
-      brand = ${input.brand},
-      store = ${input.store},
-      link_url = ${input.linkUrl},
-      price_cents = ${input.priceCents},
-      notes = ${input.notes},
-      last_verified_at = ${input.lastVerifiedAt ?? null}
-    WHERE id = ${id}
-  `;
-  const rows = await sql<ProductCatalogRow[]>`
-    SELECT * FROM product_catalog WHERE id = ${id} LIMIT 1
-  `;
-  return rows[0] ? rowToCatalog(rows[0]) : null;
-}
-
-export async function deleteCatalogEntry(id: string): Promise<void> {
-  if (!isDbConfigured()) return;
-  await ensureSchema();
-  const sql = getSql();
-  await sql`DELETE FROM product_catalog WHERE id = ${id}`;
 }
 
 // ─── Booking mappers + CRUD ──────────────────────────────────
