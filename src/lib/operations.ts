@@ -73,6 +73,40 @@ export type Booking = {
 
 export type BookingInput = Omit<Booking, "id" | "createdAt">;
 
+export type Expense = {
+  id: string;
+  propertyId: string | null;
+  spentOn: string; // ISO date (YYYY-MM-DD)
+  category: string;
+  vendor: string;
+  description: string;
+  amountCents: number;
+  receiptUrl: string | null;
+  notes: string;
+  createdAt: string;
+};
+
+export type ExpenseInput = Omit<Expense, "id" | "createdAt">;
+
+export type TaxDocument = {
+  id: string;
+  taxYear: number;
+  category: string;
+  name: string;
+  propertyId: string | null;
+  fileUrl: string;
+  fileName: string;
+  fileSize: number;
+  notes: string;
+  uploadedAt: string;
+};
+
+export type TaxDocumentInput = Omit<TaxDocument, "id" | "uploadedAt">;
+
+// Category constants live in operations-constants.ts so client components
+// can import them without dragging the postgres driver into the browser.
+export { EXPENSE_CATEGORIES, TAX_DOCUMENT_CATEGORIES } from "./operations-constants";
+
 // ─── ID generation ───────────────────────────────────────────
 function genId(): string {
   return (
@@ -775,6 +809,290 @@ export async function deleteBooking(id: string): Promise<void> {
   await sql`DELETE FROM bookings WHERE id = ${id}`;
 }
 
+// ─── Expense mappers + CRUD ──────────────────────────────────
+type ExpenseRow = {
+  id: string;
+  property_id: string | null;
+  spent_on: string | Date;
+  category: string;
+  vendor: string;
+  description: string;
+  amount_cents: number;
+  receipt_url: string | null;
+  notes: string;
+  created_at: string | Date;
+};
+
+function rowToExpense(row: ExpenseRow): Expense {
+  return {
+    id: row.id,
+    propertyId: row.property_id,
+    spentOn: isoDate(row.spent_on),
+    category: row.category,
+    vendor: row.vendor,
+    description: row.description,
+    amountCents: row.amount_cents,
+    receiptUrl: row.receipt_url,
+    notes: row.notes,
+    createdAt: isoOrNull(row.created_at) ?? new Date().toISOString(),
+  };
+}
+
+export async function listExpenses(propertyId?: string): Promise<Expense[]> {
+  if (!isDbConfigured()) return [];
+  await ensureSchema();
+  const sql = getSql();
+  const rows = propertyId
+    ? await sql<ExpenseRow[]>`
+        SELECT * FROM expenses WHERE property_id = ${propertyId}
+        ORDER BY spent_on DESC, created_at DESC
+      `
+    : await sql<ExpenseRow[]>`
+        SELECT * FROM expenses ORDER BY spent_on DESC, created_at DESC
+      `;
+  return rows.map(rowToExpense);
+}
+
+export async function getExpense(id: string): Promise<Expense | null> {
+  if (!isDbConfigured()) return null;
+  await ensureSchema();
+  const sql = getSql();
+  const rows = await sql<ExpenseRow[]>`
+    SELECT * FROM expenses WHERE id = ${id} LIMIT 1
+  `;
+  return rows[0] ? rowToExpense(rows[0]) : null;
+}
+
+export async function createExpense(input: ExpenseInput): Promise<Expense> {
+  if (!isDbConfigured()) throw new Error("Database is not configured.");
+  await ensureSchema();
+  const sql = getSql();
+  const id = genId();
+  await sql`
+    INSERT INTO expenses (
+      id, property_id, spent_on, category, vendor,
+      description, amount_cents, receipt_url, notes
+    ) VALUES (
+      ${id},
+      ${input.propertyId},
+      ${input.spentOn},
+      ${input.category},
+      ${input.vendor},
+      ${input.description},
+      ${input.amountCents},
+      ${input.receiptUrl},
+      ${input.notes}
+    )
+  `;
+  const rows = await sql<ExpenseRow[]>`
+    SELECT * FROM expenses WHERE id = ${id} LIMIT 1
+  `;
+  if (!rows[0]) throw new Error("Failed to create expense");
+  return rowToExpense(rows[0]);
+}
+
+export async function updateExpense(
+  id: string,
+  input: ExpenseInput,
+): Promise<Expense | null> {
+  if (!isDbConfigured()) return null;
+  await ensureSchema();
+  const sql = getSql();
+  await sql`
+    UPDATE expenses SET
+      property_id = ${input.propertyId},
+      spent_on = ${input.spentOn},
+      category = ${input.category},
+      vendor = ${input.vendor},
+      description = ${input.description},
+      amount_cents = ${input.amountCents},
+      receipt_url = ${input.receiptUrl},
+      notes = ${input.notes}
+    WHERE id = ${id}
+  `;
+  const rows = await sql<ExpenseRow[]>`
+    SELECT * FROM expenses WHERE id = ${id} LIMIT 1
+  `;
+  return rows[0] ? rowToExpense(rows[0]) : null;
+}
+
+export async function deleteExpense(id: string): Promise<void> {
+  if (!isDbConfigured()) return;
+  await ensureSchema();
+  const sql = getSql();
+  await sql`DELETE FROM expenses WHERE id = ${id}`;
+}
+
+// ─── TaxDocument mappers + CRUD ──────────────────────────────
+type TaxDocumentRow = {
+  id: string;
+  tax_year: number;
+  category: string;
+  name: string;
+  property_id: string | null;
+  file_url: string;
+  file_name: string;
+  file_size: number;
+  notes: string;
+  uploaded_at: string | Date;
+};
+
+function rowToTaxDocument(row: TaxDocumentRow): TaxDocument {
+  return {
+    id: row.id,
+    taxYear: Number(row.tax_year),
+    category: row.category,
+    name: row.name,
+    propertyId: row.property_id,
+    fileUrl: row.file_url,
+    fileName: row.file_name,
+    fileSize: Number(row.file_size) || 0,
+    notes: row.notes,
+    uploadedAt: isoOrNull(row.uploaded_at) ?? new Date().toISOString(),
+  };
+}
+
+export async function listTaxDocuments(
+  taxYear?: number,
+): Promise<TaxDocument[]> {
+  if (!isDbConfigured()) return [];
+  await ensureSchema();
+  const sql = getSql();
+  const rows = taxYear
+    ? await sql<TaxDocumentRow[]>`
+        SELECT * FROM tax_documents WHERE tax_year = ${taxYear}
+        ORDER BY category ASC, uploaded_at DESC
+      `
+    : await sql<TaxDocumentRow[]>`
+        SELECT * FROM tax_documents
+        ORDER BY tax_year DESC, category ASC, uploaded_at DESC
+      `;
+  return rows.map(rowToTaxDocument);
+}
+
+export async function getTaxDocument(id: string): Promise<TaxDocument | null> {
+  if (!isDbConfigured()) return null;
+  await ensureSchema();
+  const sql = getSql();
+  const rows = await sql<TaxDocumentRow[]>`
+    SELECT * FROM tax_documents WHERE id = ${id} LIMIT 1
+  `;
+  return rows[0] ? rowToTaxDocument(rows[0]) : null;
+}
+
+export async function createTaxDocument(
+  input: TaxDocumentInput,
+): Promise<TaxDocument> {
+  if (!isDbConfigured()) throw new Error("Database is not configured.");
+  await ensureSchema();
+  const sql = getSql();
+  const id = genId();
+  await sql`
+    INSERT INTO tax_documents (
+      id, tax_year, category, name, property_id,
+      file_url, file_name, file_size, notes
+    ) VALUES (
+      ${id},
+      ${input.taxYear},
+      ${input.category},
+      ${input.name},
+      ${input.propertyId},
+      ${input.fileUrl},
+      ${input.fileName},
+      ${input.fileSize},
+      ${input.notes}
+    )
+  `;
+  const rows = await sql<TaxDocumentRow[]>`
+    SELECT * FROM tax_documents WHERE id = ${id} LIMIT 1
+  `;
+  if (!rows[0]) throw new Error("Failed to create tax document");
+  return rowToTaxDocument(rows[0]);
+}
+
+export async function deleteTaxDocument(id: string): Promise<void> {
+  if (!isDbConfigured()) return;
+  await ensureSchema();
+  const sql = getSql();
+  await sql`DELETE FROM tax_documents WHERE id = ${id}`;
+}
+
+/**
+ * Distinct tax years across uploaded documents and logged expenses.
+ * Used to render the year-tab picker on /admin/operations/taxes.
+ * Always includes the current calendar year so users can start uploading
+ * for the year in progress even before any expenses/docs exist.
+ */
+export async function listTaxYears(): Promise<number[]> {
+  if (!isDbConfigured()) return [new Date().getFullYear()];
+  await ensureSchema();
+  const sql = getSql();
+  const rows = await sql<{ y: number }[]>`
+    SELECT DISTINCT y FROM (
+      SELECT tax_year AS y FROM tax_documents
+      UNION
+      SELECT EXTRACT(YEAR FROM spent_on)::int AS y FROM expenses
+      UNION
+      SELECT EXTRACT(YEAR FROM check_in)::int AS y FROM bookings
+    ) t
+    ORDER BY y DESC
+  `;
+  const years = new Set(rows.map((r) => Number(r.y)));
+  years.add(new Date().getFullYear());
+  return [...years].sort((a, b) => b - a);
+}
+
+/** Schedule-C-style rollup: totals per expense category for a given tax year. */
+export async function getExpenseSummaryForYear(
+  year: number,
+): Promise<{ category: string; totalCents: number; count: number }[]> {
+  if (!isDbConfigured()) return [];
+  await ensureSchema();
+  const sql = getSql();
+  const rows = await sql<
+    { category: string; total_cents: number; count: number }[]
+  >`
+    SELECT
+      category,
+      COALESCE(SUM(amount_cents), 0)::int AS total_cents,
+      COUNT(*)::int AS count
+    FROM expenses
+    WHERE EXTRACT(YEAR FROM spent_on) = ${year}
+    GROUP BY category
+    ORDER BY total_cents DESC
+  `;
+  return rows.map((r) => ({
+    category: r.category,
+    totalCents: Number(r.total_cents) || 0,
+    count: Number(r.count) || 0,
+  }));
+}
+
+/** Total gross + net revenue for a given tax year (based on check_in date). */
+export async function getRevenueSummaryForYear(
+  year: number,
+): Promise<{ grossCents: number; netCents: number; bookings: number }> {
+  if (!isDbConfigured()) return { grossCents: 0, netCents: 0, bookings: 0 };
+  await ensureSchema();
+  const sql = getSql();
+  const rows = await sql<
+    { gross_cents: number; net_cents: number; bookings: number }[]
+  >`
+    SELECT
+      COALESCE(SUM(gross_cents), 0)::int AS gross_cents,
+      COALESCE(SUM(net_cents), 0)::int AS net_cents,
+      COUNT(*)::int AS bookings
+    FROM bookings
+    WHERE EXTRACT(YEAR FROM check_in) = ${year}
+  `;
+  const r = rows[0];
+  return {
+    grossCents: Number(r?.gross_cents) || 0,
+    netCents: Number(r?.net_cents) || 0,
+    bookings: Number(r?.bookings) || 0,
+  };
+}
+
 // ─── Default item template (seeded into every new property) ──
 // Mirrors the lists Nat approved on the spreadsheet previews.
 type SeedItem = { item: string; qty: number; notes: string };
@@ -914,6 +1232,8 @@ export type PropertySummary = {
   bookingCount: number;
   grossRevenueCents: number;
   netRevenueCents: number;
+  expenseCount: number;
+  expensesCents: number;
 };
 
 export async function getPropertySummaries(): Promise<PropertySummary[]> {
@@ -930,6 +1250,8 @@ export async function getPropertySummaries(): Promise<PropertySummary[]> {
       booking_count: number;
       gross_revenue_cents: number;
       net_revenue_cents: number;
+      expense_count: number;
+      expenses_cents: number;
     }>
   >`
     SELECT
@@ -940,7 +1262,9 @@ export async function getPropertySummaries(): Promise<PropertySummary[]> {
       COALESCE(i.total_spent_cents, 0)  AS total_spent_cents,
       COALESCE(b.booking_count, 0)     AS booking_count,
       COALESCE(b.gross_revenue_cents, 0) AS gross_revenue_cents,
-      COALESCE(b.net_revenue_cents, 0)   AS net_revenue_cents
+      COALESCE(b.net_revenue_cents, 0)   AS net_revenue_cents,
+      COALESCE(e.expense_count, 0)     AS expense_count,
+      COALESCE(e.expenses_cents, 0)    AS expenses_cents
     FROM properties p
     LEFT JOIN (
       SELECT
@@ -961,6 +1285,15 @@ export async function getPropertySummaries(): Promise<PropertySummary[]> {
       FROM bookings
       GROUP BY property_id
     ) b ON b.property_id = p.id
+    LEFT JOIN (
+      SELECT
+        property_id,
+        COUNT(*)::int AS expense_count,
+        COALESCE(SUM(amount_cents), 0)::int AS expenses_cents
+      FROM expenses
+      WHERE property_id IS NOT NULL
+      GROUP BY property_id
+    ) e ON e.property_id = p.id
     ORDER BY p.created_at ASC
   `;
   return rows.map((r) => ({
@@ -972,6 +1305,8 @@ export async function getPropertySummaries(): Promise<PropertySummary[]> {
     bookingCount: Number(r.booking_count) || 0,
     grossRevenueCents: Number(r.gross_revenue_cents) || 0,
     netRevenueCents: Number(r.net_revenue_cents) || 0,
+    expenseCount: Number(r.expense_count) || 0,
+    expensesCents: Number(r.expenses_cents) || 0,
   }));
 }
 

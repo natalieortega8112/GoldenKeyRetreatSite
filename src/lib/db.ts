@@ -176,6 +176,47 @@ async function ensureSchema() {
         );
       `;
       await sql`CREATE INDEX IF NOT EXISTS property_categories_order_idx ON property_categories(property_id, sort_order)`;
+
+      // tax_documents: uploaded PDFs / images for each tax year — 1099s, mortgage
+      // statements, quarterly estimates, deeds, permits. property_id nullable
+      // because most tax docs are LLC-level, but some are property-specific.
+      await sql`
+        CREATE TABLE IF NOT EXISTS tax_documents (
+          id            TEXT PRIMARY KEY,
+          tax_year      INT NOT NULL,
+          category      TEXT NOT NULL,
+          name          TEXT NOT NULL,
+          property_id   TEXT REFERENCES properties(id) ON DELETE SET NULL,
+          file_url      TEXT NOT NULL,
+          file_name     TEXT NOT NULL DEFAULT '',
+          file_size     INT NOT NULL DEFAULT 0,
+          notes         TEXT NOT NULL DEFAULT '',
+          uploaded_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS tax_documents_year_idx ON tax_documents(tax_year DESC)`;
+      await sql`CREATE INDEX IF NOT EXISTS tax_documents_category_idx ON tax_documents(category)`;
+
+      // expenses: ongoing operating costs — rent, utilities, repairs, insurance, etc.
+      // property_id nullable so LLC-level costs (business insurance, software) can
+      // still be tracked. spent_on is the date the expense occurred (drives P&L).
+      await sql`
+        CREATE TABLE IF NOT EXISTS expenses (
+          id            TEXT PRIMARY KEY,
+          property_id   TEXT REFERENCES properties(id) ON DELETE SET NULL,
+          spent_on      DATE NOT NULL,
+          category      TEXT NOT NULL,
+          vendor        TEXT NOT NULL DEFAULT '',
+          description   TEXT NOT NULL DEFAULT '',
+          amount_cents  INT NOT NULL DEFAULT 0,
+          receipt_url   TEXT,
+          notes         TEXT NOT NULL DEFAULT '',
+          created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS expenses_property_idx ON expenses(property_id)`;
+      await sql`CREATE INDEX IF NOT EXISTS expenses_spent_on_idx ON expenses(spent_on DESC)`;
+      await sql`CREATE INDEX IF NOT EXISTS expenses_category_idx ON expenses(category)`;
     })();
   }
   await initPromise;

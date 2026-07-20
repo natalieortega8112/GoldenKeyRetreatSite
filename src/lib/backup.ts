@@ -7,6 +7,8 @@ import {
   listPropertyItems,
   listCatalog,
   listBookings,
+  listExpenses,
+  listTaxDocuments,
   centsToDollars,
 } from "./operations";
 
@@ -31,14 +33,17 @@ function styleHeader(row: ExcelJS.Row) {
 }
 
 export async function buildOperationsWorkbook(): Promise<Buffer> {
-  const [properties, items, catalog, bookings] = await Promise.all([
-    listProperties(),
-    listPropertyItems(),
-    listCatalog(),
-    listBookings(),
-  ]);
-  const propertyName = (id: string) =>
-    properties.find((p) => p.id === id)?.name ?? id;
+  const [properties, items, catalog, bookings, expenses, taxDocs] =
+    await Promise.all([
+      listProperties(),
+      listPropertyItems(),
+      listCatalog(),
+      listBookings(),
+      listExpenses(),
+      listTaxDocuments(),
+    ]);
+  const propertyName = (id: string | null) =>
+    id ? (properties.find((p) => p.id === id)?.name ?? id) : "LLC / Business-wide";
 
   const wb = new ExcelJS.Workbook();
   wb.creator = "Golden Key Retreats — Operations Sheet";
@@ -170,6 +175,61 @@ export async function buildOperationsWorkbook(): Promise<Buffer> {
     bookSheet.getColumn(k).numFmt = '"$"#,##0.00';
   });
 
+  // ── Expenses sheet ──
+  const expSheet = wb.addWorksheet("Expenses");
+  expSheet.columns = [
+    { header: "Date", key: "date", width: 12 },
+    { header: "Category", key: "category", width: 22 },
+    { header: "Property", key: "property", width: 22 },
+    { header: "Vendor", key: "vendor", width: 20 },
+    { header: "Description", key: "description", width: 30 },
+    { header: "Amount ($)", key: "amount", width: 12 },
+    { header: "Receipt", key: "receipt", width: 40 },
+    { header: "Notes", key: "notes", width: 28 },
+  ];
+  styleHeader(expSheet.getRow(1));
+  for (const e of expenses) {
+    expSheet.addRow({
+      date: e.spentOn,
+      category: e.category,
+      property: propertyName(e.propertyId),
+      vendor: e.vendor,
+      description: e.description,
+      amount: e.amountCents / 100,
+      receipt: e.receiptUrl ?? "",
+      notes: e.notes,
+    });
+  }
+  expSheet.getColumn("amount").numFmt = '"$"#,##0.00';
+
+  // ── Tax Documents sheet ──
+  const taxSheet = wb.addWorksheet("Tax Documents");
+  taxSheet.columns = [
+    { header: "Tax Year", key: "year", width: 10 },
+    { header: "Category", key: "category", width: 24 },
+    { header: "Name", key: "name", width: 30 },
+    { header: "Property", key: "property", width: 22 },
+    { header: "File", key: "fileName", width: 30 },
+    { header: "Size (KB)", key: "size", width: 12 },
+    { header: "URL", key: "url", width: 50 },
+    { header: "Uploaded", key: "uploaded", width: 20 },
+    { header: "Notes", key: "notes", width: 28 },
+  ];
+  styleHeader(taxSheet.getRow(1));
+  for (const d of taxDocs) {
+    taxSheet.addRow({
+      year: d.taxYear,
+      category: d.category,
+      name: d.name,
+      property: propertyName(d.propertyId),
+      fileName: d.fileName,
+      size: d.fileSize > 0 ? Math.round(d.fileSize / 1024) : "",
+      url: d.fileUrl,
+      uploaded: new Date(d.uploadedAt).toLocaleString(),
+      notes: d.notes,
+    });
+  }
+
   // ── Metadata sheet (snapshot context) ──
   const metaSheet = wb.addWorksheet("_meta");
   metaSheet.columns = [
@@ -182,6 +242,8 @@ export async function buildOperationsWorkbook(): Promise<Buffer> {
   metaSheet.addRow({ key: "Inventory rows", value: items.length });
   metaSheet.addRow({ key: "Product links", value: catalog.length });
   metaSheet.addRow({ key: "Bookings", value: bookings.length });
+  metaSheet.addRow({ key: "Expenses", value: expenses.length });
+  metaSheet.addRow({ key: "Tax documents", value: taxDocs.length });
   metaSheet.addRow({ key: "Source", value: "goldenkeyretreats.org" });
 
   const arrayBuffer = await wb.xlsx.writeBuffer();

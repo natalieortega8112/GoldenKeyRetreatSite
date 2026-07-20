@@ -26,6 +26,8 @@ export const DEMO_SUMMARIES: PropertySummary[] = [
     bookingCount: 12,
     grossRevenueCents: 2_410_000,
     netRevenueCents: 1_905_000,
+    expenseCount: 34,
+    expensesCents: 682_000,
   },
   {
     property: {
@@ -45,6 +47,8 @@ export const DEMO_SUMMARIES: PropertySummary[] = [
     bookingCount: 9,
     grossRevenueCents: 1_820_000,
     netRevenueCents: 1_408_000,
+    expenseCount: 28,
+    expensesCents: 745_000,
   },
   {
     property: {
@@ -64,5 +68,7 @@ export const DEMO_SUMMARIES: PropertySummary[] = [
     bookingCount: 14,
     grossRevenueCents: 1_650_000,
     netRevenueCents: 1_298_000,
+    expenseCount: 22,
+    expensesCents: 498_000,
   },
 ];

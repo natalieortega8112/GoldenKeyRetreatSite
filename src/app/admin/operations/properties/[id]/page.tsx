@@ -6,6 +6,7 @@ import {
   ListChecks,
   Wallet,
   CalendarRange,
+  Receipt,
   ArrowLeft,
   Plus,
   ExternalLink,
@@ -16,6 +17,7 @@ import {
   getProperty,
   listPropertyItems,
   listBookings,
+  listExpenses,
   DEFAULT_CATEGORIES,
 } from "@/lib/operations";
 import type { PropertyItem } from "@/lib/operations";
@@ -33,10 +35,11 @@ export default async function PropertyDetailPage({
   if (!isDbConfigured()) redirect("/admin/operations/properties");
   const { id } = await params;
 
-  const [property, items, bookings] = await Promise.all([
+  const [property, items, bookings, expenses] = await Promise.all([
     getProperty(id).catch(() => null),
     listPropertyItems(id).catch(() => []),
     listBookings(id).catch(() => []),
+    listExpenses(id).catch(() => []),
   ]);
   if (!property) notFound();
 
@@ -57,8 +60,11 @@ export default async function PropertyDetailPage({
   const netRevenue = bookings.reduce((s, b) => s + b.netCents, 0);
   const totalNights = bookings.reduce((s, b) => s + b.nights, 0);
 
-  // Net position so far (revenue minus setup spend; rent left out — comment below)
-  const netPosition = netRevenue - totalSpent;
+  const totalExpenses = expenses.reduce((s, e) => s + e.amountCents, 0);
+
+  // Net position: revenue minus setup spend minus operating expenses.
+  // Rent shows up here whenever it's been logged as an expense.
+  const netPosition = netRevenue - totalSpent - totalExpenses;
 
   // Group items by category for compact view
   const byCat = new Map<string, PropertyItem[]>();
@@ -168,7 +174,7 @@ export default async function PropertyDetailPage({
               netPosition >= 0 ? "text-emerald-700" : "text-amber-700"
             }`}
           >
-            Net Position (revenue − setup spend)
+            Net Position (revenue − setup − expenses)
           </div>
           <div
             className={`font-serif text-2xl sm:text-3xl mt-1 ${
@@ -179,9 +185,8 @@ export default async function PropertyDetailPage({
             {fmt(Math.abs(netPosition))}
           </div>
           <p className="text-[11px] text-charcoal/60 mt-1">
-            Doesn&apos;t include accumulated rent payments. Subtract{" "}
-            {fmt(property.monthlyRentCents ?? 0)} per month operated for the
-            true P&amp;L picture.
+            Log every rent payment and utility bill under Expenses to keep this
+            accurate. Monthly rent is {fmt(property.monthlyRentCents ?? 0)}.
           </p>
         </div>
         <div className="flex items-baseline gap-6 text-right">
@@ -197,11 +202,17 @@ export default async function PropertyDetailPage({
             </div>
             <div className="font-serif text-lg text-ink">{fmt(totalSpent)}</div>
           </div>
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.2em] text-muted">
+              Expenses
+            </div>
+            <div className="font-serif text-lg text-ink">{fmt(totalExpenses)}</div>
+          </div>
         </div>
       </div>
 
       {/* Quick-link tab buttons */}
-      <div className="grid sm:grid-cols-3 gap-3 mb-8">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
         <QuickLink
           href={`/admin/operations/inventory?property=${property.id}`}
           icon={<ListChecks className="w-4 h-4" />}
@@ -222,6 +233,16 @@ export default async function PropertyDetailPage({
             bookings.length > 0
               ? `${bookings.length} so far`
               : "First booking"
+          }
+        />
+        <QuickLink
+          href="/admin/operations/expenses/new"
+          icon={<Receipt className="w-4 h-4" />}
+          title="Log Expense"
+          desc={
+            expenses.length > 0
+              ? `${expenses.length} logged · ${fmt(totalExpenses)}`
+              : "First expense"
           }
         />
       </div>

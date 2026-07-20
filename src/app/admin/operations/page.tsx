@@ -9,6 +9,8 @@ import {
   Database,
   ArrowRight,
   Sparkles,
+  Receipt,
+  FolderOpen,
   X,
 } from "lucide-react";
 import { isAdmin } from "@/lib/auth";
@@ -50,6 +52,8 @@ export default async function OperationsHomePage({
       budgetCents: acc.budgetCents + s.totalBudgetCents,
       grossRevenueCents: acc.grossRevenueCents + s.grossRevenueCents,
       netRevenueCents: acc.netRevenueCents + s.netRevenueCents,
+      expensesCents: acc.expensesCents + s.expensesCents,
+      expenseCount: acc.expenseCount + s.expenseCount,
     }),
     {
       properties: 0,
@@ -60,6 +64,8 @@ export default async function OperationsHomePage({
       budgetCents: 0,
       grossRevenueCents: 0,
       netRevenueCents: 0,
+      expensesCents: 0,
+      expenseCount: 0,
     },
   );
 
@@ -187,6 +193,21 @@ export default async function OperationsHomePage({
           icon={<CalendarRange className="w-5 h-5" />}
           title="Income / Bookings"
           desc="Revenue per property per booking."
+          disabled={demo}
+        />
+        <SectionCard
+          href="/admin/operations/expenses"
+          icon={<Receipt className="w-5 h-5" />}
+          title="Expenses"
+          desc="Rent, utilities, repairs, insurance."
+          badge={totals.expenseCount > 0 ? `${totals.expenseCount}` : undefined}
+          disabled={demo}
+        />
+        <SectionCard
+          href="/admin/operations/taxes"
+          icon={<FolderOpen className="w-5 h-5" />}
+          title="Taxes"
+          desc="Receipts, 1099s, year-end summaries."
           disabled={demo}
         />
         <SectionCard
@@ -328,13 +349,14 @@ function PropertyCard({
     totalSpentCents,
     bookingCount,
     netRevenueCents,
+    expensesCents,
   } = summary;
   const stockPct = itemCount > 0 ? Math.round((itemsHave / itemCount) * 100) : 0;
   const budgetPct =
     totalBudgetCents > 0
       ? Math.round((totalSpentCents / totalBudgetCents) * 100)
       : 0;
-  const netPosition = netRevenueCents - totalSpentCents;
+  const netPosition = netRevenueCents - totalSpentCents - expensesCents;
 
   const inner = (
     <>
