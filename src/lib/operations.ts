@@ -1093,6 +1093,138 @@ export async function getRevenueSummaryForYear(
   };
 }
 
+// ─── Monthly P&L report ──────────────────────────────────────
+export type MonthlyPnlRow = {
+  month: number; // 1..12
+  grossRevenueCents: number;
+  netRevenueCents: number;
+  expensesCents: number;
+  profitCents: number;
+  bookingCount: number;
+  expenseCount: number;
+};
+
+/**
+ * Full 12-month P&L for a given year. Optionally filtered by property
+ * (pass null / undefined for "all properties combined").
+ *
+ * Revenue is bucketed by booking `check_in` month.
+ * Expenses are bucketed by `spent_on` month.
+ * When a property is selected, expenses with a null property_id
+ * (LLC-wide costs) are excluded — those don't belong to any single unit.
+ */
+export async function getMonthlyPnl(
+  year: number,
+  propertyId?: string | null,
+): Promise<MonthlyPnlRow[]> {
+  const empty: MonthlyPnlRow[] = Array.from({ length: 12 }, (_, i) => ({
+    month: i + 1,
+    grossRevenueCents: 0,
+    netRevenueCents: 0,
+    expensesCents: 0,
+    profitCents: 0,
+    bookingCount: 0,
+    expenseCount: 0,
+  }));
+  if (!isDbConfigured()) return empty;
+  await ensureSchema();
+  const sql = getSql();
+
+  const revenueRows = propertyId
+    ? await sql<
+        Array<{ m: number; gross: number; net: number; n: number }>
+      >`
+        SELECT
+          EXTRACT(MONTH FROM check_in)::int AS m,
+          COALESCE(SUM(gross_cents), 0)::int AS gross,
+          COALESCE(SUM(net_cents), 0)::int AS net,
+          COUNT(*)::int AS n
+        FROM bookings
+        WHERE EXTRACT(YEAR FROM check_in) = ${year}
+          AND property_id = ${propertyId}
+        GROUP BY m
+      `
+    : await sql<
+        Array<{ m: number; gross: number; net: number; n: number }>
+      >`
+        SELECT
+          EXTRACT(MONTH FROM check_in)::int AS m,
+          COALESCE(SUM(gross_cents), 0)::int AS gross,
+          COALESCE(SUM(net_cents), 0)::int AS net,
+          COUNT(*)::int AS n
+        FROM bookings
+        WHERE EXTRACT(YEAR FROM check_in) = ${year}
+        GROUP BY m
+      `;
+
+  const expenseRows = propertyId
+    ? await sql<Array<{ m: number; total: number; n: number }>>`
+        SELECT
+          EXTRACT(MONTH FROM spent_on)::int AS m,
+          COALESCE(SUM(amount_cents), 0)::int AS total,
+          COUNT(*)::int AS n
+        FROM expenses
+        WHERE EXTRACT(YEAR FROM spent_on) = ${year}
+          AND property_id = ${propertyId}
+        GROUP BY m
+      `
+    : await sql<Array<{ m: number; total: number; n: number }>>`
+        SELECT
+          EXTRACT(MONTH FROM spent_on)::int AS m,
+          COALESCE(SUM(amount_cents), 0)::int AS total,
+          COUNT(*)::int AS n
+        FROM expenses
+        WHERE EXTRACT(YEAR FROM spent_on) = ${year}
+        GROUP BY m
+      `;
+
+  for (const r of revenueRows) {
+    const idx = Number(r.m) - 1;
+    if (idx < 0 || idx > 11) continue;
+    empty[idx].grossRevenueCents = Number(r.gross) || 0;
+    empty[idx].netRevenueCents = Number(r.net) || 0;
+    empty[idx].bookingCount = Number(r.n) || 0;
+  }
+  for (const r of expenseRows) {
+    const idx = Number(r.m) - 1;
+    if (idx < 0 || idx > 11) continue;
+    empty[idx].expensesCents = Number(r.total) || 0;
+    empty[idx].expenseCount = Number(r.n) || 0;
+  }
+  for (const row of empty) {
+    row.profitCents = row.netRevenueCents - row.expensesCents;
+  }
+  return empty;
+}
+
+/** Same shape as getExpenseSummaryForYear but scoped to a single property. */
+export async function getExpenseSummaryForYearAndProperty(
+  year: number,
+  propertyId: string,
+): Promise<{ category: string; totalCents: number; count: number }[]> {
+  if (!isDbConfigured()) return [];
+  await ensureSchema();
+  const sql = getSql();
+  const rows = await sql<
+    { category: string; total_cents: number; count: number }[]
+  >`
+    SELECT
+      category,
+      COALESCE(SUM(amount_cents), 0)::int AS total_cents,
+      COUNT(*)::int AS count
+    FROM expenses
+    WHERE EXTRACT(YEAR FROM spent_on) = ${year}
+      AND property_id = ${propertyId}
+    GROUP BY category
+    ORDER BY total_cents DESC
+  `;
+  return rows.map((r) => ({
+    category: r.category,
+    totalCents: Number(r.total_cents) || 0,
+    count: Number(r.count) || 0,
+  }));
+}
+
 // ─── Default item template (seeded into every new property) ──
 // Mirrors the lists Nat approved on the spreadsheet previews.
 type SeedItem = { item: string; qty: number; notes: string };

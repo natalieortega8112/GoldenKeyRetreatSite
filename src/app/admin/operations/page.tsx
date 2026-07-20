@@ -11,6 +11,7 @@ import {
   Sparkles,
   Receipt,
   FolderOpen,
+  LineChart,
   X,
 } from "lucide-react";
 import { isAdmin } from "@/lib/auth";
@@ -208,6 +209,13 @@ export default async function OperationsHomePage({
           icon={<FolderOpen className="w-5 h-5" />}
           title="Taxes"
           desc="Receipts, 1099s, year-end summaries."
+          disabled={demo}
+        />
+        <SectionCard
+          href="/admin/operations/reports"
+          icon={<LineChart className="w-5 h-5" />}
+          title="Monthly P&L"
+          desc="Revenue, expenses, profit by month."
           disabled={demo}
         />
         <SectionCard
