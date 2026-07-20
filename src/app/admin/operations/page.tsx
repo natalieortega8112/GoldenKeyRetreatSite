@@ -3,14 +3,10 @@ import { redirect } from "next/navigation";
 import {
   Building2,
   ListChecks,
-  Wallet,
-  CalendarRange,
   Database,
   ArrowRight,
   Sparkles,
   Receipt,
-  FolderOpen,
-  LineChart,
   X,
 } from "lucide-react";
 import { isAdmin } from "@/lib/auth";
@@ -157,7 +153,7 @@ export default async function OperationsHomePage({
           href="/admin/operations/properties"
           icon={<Building2 className="w-5 h-5" />}
           title="Properties"
-          desc="Add, edit, or remove rental units."
+          desc="Unit info + bookings and income for each property."
           badge={`${totals.properties}`}
           disabled={demo}
         />
@@ -170,44 +166,11 @@ export default async function OperationsHomePage({
           disabled={demo}
         />
         <SectionCard
-          href="/admin/operations/budget"
-          icon={<Wallet className="w-5 h-5" />}
-          title="Budget"
-          desc="Spend vs. plan, per category."
-          badge={
-            totals.budgetCents > 0
-              ? Math.round((totals.spentCents / totals.budgetCents) * 100) + "%"
-              : undefined
-          }
-          disabled={demo}
-        />
-        <SectionCard
-          href="/admin/operations/income"
-          icon={<CalendarRange className="w-5 h-5" />}
-          title="Income / Bookings"
-          desc="Revenue per property per booking."
-          disabled={demo}
-        />
-        <SectionCard
           href="/admin/operations/expenses"
           icon={<Receipt className="w-5 h-5" />}
           title="Expenses"
           desc="Rent, utilities, repairs, insurance."
           badge={totals.expenseCount > 0 ? `${totals.expenseCount}` : undefined}
-          disabled={demo}
-        />
-        <SectionCard
-          href="/admin/operations/taxes"
-          icon={<FolderOpen className="w-5 h-5" />}
-          title="Taxes"
-          desc="Receipts, 1099s, year-end summaries."
-          disabled={demo}
-        />
-        <SectionCard
-          href="/admin/operations/reports"
-          icon={<LineChart className="w-5 h-5" />}
-          title="Monthly P&L"
-          desc="Revenue, expenses, profit by month."
           disabled={demo}
         />
         <SectionCard

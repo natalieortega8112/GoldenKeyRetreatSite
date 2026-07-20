@@ -226,7 +226,7 @@ export default async function PropertyDetailPage({
           desc={`${budgetPct}% used`}
         />
         <QuickLink
-          href="/admin/operations/income/new"
+          href={`/admin/operations/income/new?property=${property.id}`}
           icon={<CalendarRange className="w-4 h-4" />}
           title="Log Booking"
           desc={
@@ -236,7 +236,7 @@ export default async function PropertyDetailPage({
           }
         />
         <QuickLink
-          href="/admin/operations/expenses/new"
+          href={`/admin/operations/expenses/new?property=${property.id}`}
           icon={<Receipt className="w-4 h-4" />}
           title="Log Expense"
           desc={
@@ -304,7 +304,7 @@ export default async function PropertyDetailPage({
         <header className="flex items-center justify-between px-5 py-3 bg-gold/5 border-b border-line">
           <h2 className="font-serif text-base text-ink">Recent Bookings</h2>
           <Link
-            href="/admin/operations/income/new"
+            href={`/admin/operations/income/new?property=${property.id}`}
             className="text-xs text-gold-deep hover:text-ink inline-flex items-center gap-1"
           >
             <Plus className="w-3 h-3" /> Log
@@ -314,7 +314,7 @@ export default async function PropertyDetailPage({
           <div className="p-6 text-sm text-charcoal/70">
             No bookings logged yet.
             <Link
-              href="/admin/operations/income/new"
+              href={`/admin/operations/income/new?property=${property.id}`}
               className="text-gold-deep hover:underline ml-1"
             >
               Log the first one →

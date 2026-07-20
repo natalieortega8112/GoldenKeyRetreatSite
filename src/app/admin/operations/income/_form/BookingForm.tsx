@@ -9,6 +9,7 @@ import { centsToDollars } from "@/lib/money";
 type Props = {
   initial?: Booking;
   properties: Property[];
+  defaultPropertyId?: string;
   action: (formData: FormData) => Promise<void>;
   submitLabel: string;
 };
@@ -21,7 +22,13 @@ function diffNights(a: string, b: string): number {
   return Math.round((t2 - t1) / (1000 * 60 * 60 * 24));
 }
 
-export function BookingForm({ initial, properties, action, submitLabel }: Props) {
+export function BookingForm({
+  initial,
+  properties,
+  defaultPropertyId,
+  action,
+  submitLabel,
+}: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,7 +73,12 @@ export function BookingForm({ initial, properties, action, submitLabel }: Props)
             <select
               name="propertyId"
               required
-              defaultValue={initial?.propertyId ?? properties[0]?.id ?? ""}
+              defaultValue={
+                initial?.propertyId ??
+                defaultPropertyId ??
+                properties[0]?.id ??
+                ""
+              }
               className="w-full rounded-md border border-line bg-cream-soft/30 px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
             >
               {properties.length === 0 && (

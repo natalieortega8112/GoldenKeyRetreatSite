@@ -6,9 +6,18 @@ import { createBookingAction } from "../actions";
 
 export const metadata = { title: "Log Booking | Golden Key Retreats" };
 
-export default async function NewBookingPage() {
+export default async function NewBookingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ property?: string }>;
+}) {
   if (!(await isAdmin())) redirect("/admin/login");
   const properties = await listProperties().catch(() => []);
+  const sp = await searchParams;
+  const defaultPropertyId =
+    sp.property && properties.some((p) => p.id === sp.property)
+      ? sp.property
+      : undefined;
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-10 py-8 sm:py-12">
@@ -23,6 +32,7 @@ export default async function NewBookingPage() {
       </p>
       <BookingForm
         properties={properties}
+        defaultPropertyId={defaultPropertyId}
         action={createBookingAction}
         submitLabel="Save Booking"
       />

@@ -10,6 +10,7 @@ import { centsToDollars } from "@/lib/money";
 type Props = {
   initial?: Expense;
   properties: Property[];
+  defaultPropertyId?: string;
   action: (formData: FormData) => Promise<void>;
   submitLabel: string;
 };
@@ -21,6 +22,7 @@ function todayIso(): string {
 export function ExpenseForm({
   initial,
   properties,
+  defaultPropertyId,
   action,
   submitLabel,
 }: Props) {
@@ -78,7 +80,9 @@ export function ExpenseForm({
             </span>
             <select
               name="propertyId"
-              defaultValue={initial?.propertyId ?? ""}
+              defaultValue={
+                initial?.propertyId ?? defaultPropertyId ?? ""
+              }
               className="w-full rounded-md border border-line bg-cream-soft/30 px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
             >
               <option value="">— LLC / Business-wide —</option>
