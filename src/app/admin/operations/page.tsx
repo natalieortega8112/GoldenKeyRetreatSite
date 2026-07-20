@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Sparkles,
   Receipt,
+  FolderOpen,
   X,
 } from "lucide-react";
 import { isAdmin } from "@/lib/auth";
@@ -171,6 +172,13 @@ export default async function OperationsHomePage({
           title="Expenses"
           desc="Rent, utilities, repairs, insurance."
           badge={totals.expenseCount > 0 ? `${totals.expenseCount}` : undefined}
+          disabled={demo}
+        />
+        <SectionCard
+          href="/admin/operations/taxes"
+          icon={<FolderOpen className="w-5 h-5" />}
+          title="Taxes"
+          desc="Receipts, 1099s, year-end summaries."
           disabled={demo}
         />
         <SectionCard
