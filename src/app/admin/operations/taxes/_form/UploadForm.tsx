@@ -12,6 +12,8 @@ type Props = {
   action: (formData: FormData) => Promise<void>;
 };
 
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
 export function UploadForm({ defaultYear, years, properties, action }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,10 +27,18 @@ export function UploadForm({ defaultYear, years, properties, action }: Props) {
     <form
       onSubmit={async (e) => {
         e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        const file = fd.get("file");
+        if (file instanceof File && file.size > MAX_UPLOAD_BYTES) {
+          setError(
+            `File is ${(file.size / 1024 / 1024).toFixed(1)} MB — the limit is 10 MB. Split the PDF or use a smaller scan.`,
+          );
+          return;
+        }
         setSubmitting(true);
         setError(null);
         try {
-          await action(new FormData(e.currentTarget));
+          await action(fd);
         } catch (err) {
           setError(err instanceof Error ? err.message : String(err));
           setSubmitting(false);
@@ -144,7 +154,7 @@ export function UploadForm({ defaultYear, years, properties, action }: Props) {
           )}
         </div>
         <span className="block text-[11px] text-muted mt-1">
-          PDF, PNG, or JPG. Uploads to encrypted Vercel Blob storage.
+          PDF, PNG, or JPG · max 10 MB. Uploads to encrypted Vercel Blob storage.
         </span>
       </label>
 

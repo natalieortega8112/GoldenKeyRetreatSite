@@ -19,6 +19,8 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
 export function ExpenseForm({
   initial,
   properties,
@@ -34,10 +36,18 @@ export function ExpenseForm({
     <form
       onSubmit={async (e) => {
         e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        const receipt = fd.get("receiptFile");
+        if (receipt instanceof File && receipt.size > MAX_UPLOAD_BYTES) {
+          setError(
+            `Receipt is ${(receipt.size / 1024 / 1024).toFixed(1)} MB — the limit is 10 MB. Take a photo or use a smaller scan.`,
+          );
+          return;
+        }
         setSubmitting(true);
         setError(null);
         try {
-          await action(new FormData(e.currentTarget));
+          await action(fd);
         } catch (err) {
           setError(err instanceof Error ? err.message : String(err));
           setSubmitting(false);
@@ -171,7 +181,7 @@ export function ExpenseForm({
               )}
             </div>
             <span className="block text-[11px] text-muted mt-1">
-              PDF, PNG, or JPG. Replaces the current receipt if one is attached.
+              PDF, PNG, or JPG · max 10 MB. Replaces the current receipt if one is attached.
             </span>
           </label>
           <Field
