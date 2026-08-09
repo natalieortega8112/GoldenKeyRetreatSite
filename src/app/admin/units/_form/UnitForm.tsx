@@ -170,32 +170,21 @@ export function UnitForm({ initial, properties, action, submitLabel }: Props) {
 
       <div className="space-y-4 sm:space-y-5">
         <Card title="Photos">
-          <input
-            type="file"
-            name="newPhotos"
-            multiple
-            accept="image/*"
-            className="block w-full text-sm text-charcoal file:mr-3 file:rounded-md file:border-0 file:bg-gold/15 file:px-3 file:py-2 file:text-gold-deep hover:file:bg-gold/25"
-          />
-          <p className="text-xs text-muted mt-2">
-            Upload from your device (photo store setup pending) OR paste image
-            URLs below — one per line, from Airbnb / VRBO / Google Drive. The
-            first photo becomes the cover unless you pick one.
-          </p>
-
-          <label className="block mt-3">
+          <label className="block">
             <span className="text-xs font-medium uppercase tracking-wider text-charcoal mb-1.5 block">
-              Or paste image URLs (one per line)
+              Paste image URLs (one per line)
             </span>
             <textarea
               name="pastedPhotoUrls"
-              rows={4}
-              placeholder={"https://a0.muscache.com/im/pictures/…\nhttps://…"}
+              rows={6}
+              placeholder={"https://a0.muscache.com/im/pictures/…\nhttps://a0.muscache.com/im/pictures/…"}
               className="w-full rounded-md border border-line bg-cream-soft px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
             />
-            <span className="text-[11px] text-muted mt-1 block">
-              To grab an Airbnb photo URL: on your listing page, right-click
-              the photo → &ldquo;Copy image address&rdquo; and paste here.
+            <span className="text-[11px] text-muted mt-2 block">
+              Uploads from your device are turned off for now (the current photo
+              store is private). To grab an Airbnb photo URL: open your listing,
+              right-click the photo → <strong>&ldquo;Copy image address&rdquo;</strong>
+              and paste one URL per line. The first URL becomes the cover.
             </span>
           </label>
 

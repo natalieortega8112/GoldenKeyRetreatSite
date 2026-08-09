@@ -2,7 +2,6 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { put } from "@vercel/blob";
 import { isAdmin } from "@/lib/auth";
 import {
   createUnit,
@@ -26,27 +25,6 @@ function parseInt(value: FormDataEntryValue | null): number | null {
   return Number.isFinite(n) ? Math.trunc(n) : null;
 }
 
-async function uploadPhotos(files: File[]): Promise<string[]> {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    throw new Error(
-      "Image upload is not configured. Set BLOB_READ_WRITE_TOKEN in your Vercel project (Storage → Blob).",
-    );
-  }
-  const uploaded: string[] = [];
-  for (const file of files) {
-    if (!file || file.size === 0) continue;
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const key = `units/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeName}`;
-    const blob = await put(key, file, {
-      access: "public",
-      addRandomSuffix: false,
-      contentType: file.type || "application/octet-stream",
-    });
-    uploaded.push(blob.url);
-  }
-  return uploaded;
-}
-
 async function buildInputFromForm(formData: FormData): Promise<UnitInput> {
   const name = String(formData.get("name") || "").trim();
   const location = String(formData.get("location") || "").trim();
@@ -57,15 +35,11 @@ async function buildInputFromForm(formData: FormData): Promise<UnitInput> {
     .getAll("existingPhotos")
     .map((v) => String(v))
     .filter(Boolean);
-  const newFiles = formData.getAll("newPhotos").filter(
-    (v): v is File => v instanceof File && v.size > 0,
-  );
-  const newUrls = newFiles.length > 0 ? await uploadPhotos(newFiles) : [];
   const pastedUrls = String(formData.get("pastedPhotoUrls") ?? "")
     .split(/\r?\n/)
     .map((s) => s.trim())
     .filter((s) => /^https?:\/\//i.test(s));
-  const photoUrls = [...existingPhotos, ...newUrls, ...pastedUrls];
+  const photoUrls = [...existingPhotos, ...pastedUrls];
 
   const coverFromForm = String(formData.get("coverImageUrl") || "").trim();
   const coverImageUrl =
