@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/auth";
+import { listProperties } from "@/lib/operations";
 import { UnitForm } from "../_form/UnitForm";
 import { createUnitAction } from "../actions";
 
@@ -9,6 +10,7 @@ export const metadata = {
 
 export default async function NewUnitPage() {
   if (!(await isAdmin())) redirect("/admin/login");
+  const properties = await listProperties().catch(() => []);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 py-8 sm:py-12">
@@ -19,7 +21,11 @@ export default async function NewUnitPage() {
         Fill in the details and upload photos. The unit will appear on your
         homepage and Featured Units page once saved.
       </p>
-      <UnitForm action={createUnitAction} submitLabel="Create Unit" />
+      <UnitForm
+        properties={properties}
+        action={createUnitAction}
+        submitLabel="Create Unit"
+      />
     </div>
   );
 }

@@ -5,14 +5,16 @@ import Link from "next/link";
 import { useState } from "react";
 import { Star, Trash2, Loader2 } from "lucide-react";
 import type { Unit } from "@/lib/types";
+import type { Property } from "@/lib/operations";
 
 type Props = {
   initial?: Unit;
+  properties: Property[];
   action: (formData: FormData) => Promise<void>;
   submitLabel: string;
 };
 
-export function UnitForm({ initial, action, submitLabel }: Props) {
+export function UnitForm({ initial, properties, action, submitLabel }: Props) {
   const [photos, setPhotos] = useState<string[]>(initial?.photoUrls ?? []);
   const [cover, setCover] = useState<string | null>(
     initial?.coverImageUrl ?? null,
@@ -97,6 +99,30 @@ export function UnitForm({ initial, action, submitLabel }: Props) {
               defaultValue={initial?.pricePerNight?.toString() ?? ""}
             />
           </div>
+        </Card>
+
+        <Card title="Bookkeeping">
+          <p className="text-xs text-muted -mt-2">
+            Link this listing to a property in Operations so its expenses,
+            bookings, and inventory show up here.
+          </p>
+          <label className="block">
+            <span className="text-xs font-medium uppercase tracking-wider text-charcoal mb-1.5 block">
+              Linked property
+            </span>
+            <select
+              name="propertyId"
+              defaultValue={initial?.propertyId ?? ""}
+              className="w-full rounded-md border border-line bg-cream-soft px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+            >
+              <option value="">— Not linked —</option>
+              {properties.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </label>
         </Card>
 
         <Card title="Booking Links">

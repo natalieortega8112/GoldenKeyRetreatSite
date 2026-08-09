@@ -86,6 +86,7 @@ async function buildInputFromForm(formData: FormData): Promise<UnitInput> {
     airbnbUrl: nullable(formData.get("airbnbUrl")),
     vrboUrl: nullable(formData.get("vrboUrl")),
     bookingComUrl: nullable(formData.get("bookingComUrl")),
+    propertyId: nullable(formData.get("propertyId")),
   };
 }
 

@@ -68,6 +68,10 @@ async function ensureSchema() {
       await sql`ALTER TABLE units ADD COLUMN IF NOT EXISTS airbnb_url TEXT`;
       await sql`ALTER TABLE units ADD COLUMN IF NOT EXISTS vrbo_url TEXT`;
       await sql`ALTER TABLE units ADD COLUMN IF NOT EXISTS booking_com_url TEXT`;
+      // Link a public listing to a bookkeeping property so admin views can
+      // roll up expenses, bookings, etc. Nullable — a listing may exist
+      // without a matching operations record and vice versa.
+      await sql`ALTER TABLE units ADD COLUMN IF NOT EXISTS property_id TEXT`;
 
       // Inbox messages — populated by the public contact form, read by
       // /admin/inbox. status: new | read | replied | archived.
@@ -227,6 +231,7 @@ type UnitRow = {
   airbnb_url: string | null;
   vrbo_url: string | null;
   booking_com_url: string | null;
+  property_id: string | null;
   created_at: string | Date;
 };
 
@@ -250,6 +255,7 @@ function rowToUnit(row: UnitRow): Unit {
     airbnbUrl: row.airbnb_url,
     vrboUrl: row.vrbo_url,
     bookingComUrl: row.booking_com_url,
+    propertyId: row.property_id,
     createdAt:
       created instanceof Date ? created.toISOString() : String(created),
   };
@@ -296,7 +302,7 @@ export async function createUnit(input: UnitInput): Promise<Unit> {
       id, name, location, short_description, full_description,
       cover_image_url, photo_urls, bedrooms, bathrooms, max_guests,
       price_per_night, amenities, services, booking_url,
-      airbnb_url, vrbo_url, booking_com_url
+      airbnb_url, vrbo_url, booking_com_url, property_id
     ) VALUES (
       ${id},
       ${input.name},
@@ -314,7 +320,8 @@ export async function createUnit(input: UnitInput): Promise<Unit> {
       ${input.bookingUrl},
       ${input.airbnbUrl},
       ${input.vrboUrl},
-      ${input.bookingComUrl}
+      ${input.bookingComUrl},
+      ${input.propertyId}
     )
   `;
   const created = await getUnit(id);
@@ -346,7 +353,8 @@ export async function updateUnit(
       booking_url = ${input.bookingUrl},
       airbnb_url = ${input.airbnbUrl},
       vrbo_url = ${input.vrboUrl},
-      booking_com_url = ${input.bookingComUrl}
+      booking_com_url = ${input.bookingComUrl},
+      property_id = ${input.propertyId}
     WHERE id = ${id}
   `;
   return getUnit(id);

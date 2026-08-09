@@ -16,6 +16,7 @@ export type Unit = {
   airbnbUrl: string | null;
   vrboUrl: string | null;
   bookingComUrl: string | null;
+  propertyId: string | null;
   createdAt: string;
 };
 
