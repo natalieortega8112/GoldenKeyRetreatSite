@@ -62,7 +62,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     .slice(2, 8)}-${safeName(file.name)}`;
   try {
     const blob = await put(key, file, {
-      access: "public",
+      access: "private",
       addRandomSuffix: false,
       contentType,
     });

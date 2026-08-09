@@ -193,7 +193,7 @@ export function ExpenseForm({
                   Current receipt
                 </div>
                 <a
-                  href={initial.receiptUrl}
+                  href={`/api/download/blob?url=${encodeURIComponent(initial.receiptUrl)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-ink hover:text-gold-deep inline-flex items-center gap-1 truncate"

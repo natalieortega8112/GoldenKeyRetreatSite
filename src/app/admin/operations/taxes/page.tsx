@@ -12,6 +12,7 @@ import {
   TAX_DOCUMENT_CATEGORIES,
 } from "@/lib/operations";
 import type { TaxDocument } from "@/lib/operations";
+import { proxiedBlobUrl } from "@/lib/blob-url";
 import { deleteTaxDocumentAction, uploadTaxDocumentAction } from "./actions";
 import { UploadForm } from "./_form/UploadForm";
 
@@ -282,7 +283,7 @@ export default async function TaxesPage({
                           )}
                         </div>
                         <a
-                          href={d.fileUrl}
+                          href={proxiedBlobUrl(d.fileUrl) ?? d.fileUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="btn-outline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs"

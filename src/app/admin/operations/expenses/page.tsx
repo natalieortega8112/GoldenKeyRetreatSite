@@ -4,6 +4,7 @@ import { Plus, Pencil, Trash2, ExternalLink } from "lucide-react";
 import { isAdmin } from "@/lib/auth";
 import { isDbConfigured } from "@/lib/db";
 import { listExpenses, listProperties } from "@/lib/operations";
+import { proxiedBlobUrl } from "@/lib/blob-url";
 import { deleteExpenseAction } from "./actions";
 
 export const revalidate = 0;
@@ -158,7 +159,7 @@ export default async function ExpensesPage() {
                       <td className="px-3 py-2.5 text-center">
                         {e.receiptUrl ? (
                           <a
-                            href={e.receiptUrl}
+                            href={proxiedBlobUrl(e.receiptUrl) ?? e.receiptUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-gold-deep hover:text-ink"
