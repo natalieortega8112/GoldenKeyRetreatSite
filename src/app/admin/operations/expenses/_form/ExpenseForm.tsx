@@ -51,19 +51,34 @@ export function ExpenseForm({
         setStatus("");
         try {
           if (receipt instanceof File && receipt.size > 0) {
-            setStatus(`Uploading ${receipt.name}…`);
-            const uploadPromise = upload(receipt.name, receipt, {
-              access: "public",
-              handleUploadUrl: "/api/upload/receipt",
-              contentType: receipt.type || "application/octet-stream",
-            });
-            const timeoutPromise = new Promise<never>((_, reject) =>
-              setTimeout(
-                () => reject(new Error("Upload timed out after 60 s")),
-                60_000,
-              ),
-            );
-            const blob = await Promise.race([uploadPromise, timeoutPromise]);
+            setStatus(`Uploading ${receipt.name} · 0%`);
+            const controller = new AbortController();
+            const timeout = setTimeout(() => {
+              controller.abort();
+            }, 90_000);
+            let blob;
+            try {
+              blob = await upload(receipt.name, receipt, {
+                access: "public",
+                handleUploadUrl: "/api/upload/receipt",
+                contentType: receipt.type || "application/octet-stream",
+                abortSignal: controller.signal,
+                onUploadProgress: ({ percentage }) => {
+                  setStatus(
+                    `Uploading ${receipt.name} · ${Math.round(percentage)}%`,
+                  );
+                },
+              });
+            } catch (err) {
+              if (controller.signal.aborted) {
+                throw new Error(
+                  "Upload stalled after 90 s. This usually means an ad blocker, VPN, or corporate firewall is blocking blob.vercel-storage.com — try a different browser or turn off shields.",
+                );
+              }
+              throw err;
+            } finally {
+              clearTimeout(timeout);
+            }
             fd.set("receiptUrl", blob.url);
           }
           fd.delete("receiptFile");
