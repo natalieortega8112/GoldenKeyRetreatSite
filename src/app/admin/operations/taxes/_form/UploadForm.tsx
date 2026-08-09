@@ -1,10 +1,48 @@
 "use client";
 
 import { useState } from "react";
-import { upload } from "@vercel/blob/client";
 import { Loader2, Upload } from "lucide-react";
 import type { Property } from "@/lib/operations";
 import { TAX_DOCUMENT_CATEGORIES } from "@/lib/operations-constants";
+
+async function uploadTaxDoc(
+  file: File,
+  taxYear: number,
+  onProgress: (pct: number) => void,
+): Promise<{ url: string; name: string; size: number }> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/upload/tax-doc");
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress((e.loaded / e.total) * 100);
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (data.url) resolve(data);
+          else reject(new Error(data.error || "Upload succeeded but no URL returned."));
+        } catch {
+          reject(new Error("Server sent an invalid response."));
+        }
+      } else {
+        let msg = `Upload failed (${xhr.status})`;
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (data.error) msg = data.error;
+        } catch {}
+        reject(new Error(msg));
+      }
+    };
+    xhr.onerror = () => reject(new Error("Network error while uploading."));
+    xhr.ontimeout = () => reject(new Error("Upload timed out."));
+    xhr.timeout = 120_000;
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("taxYear", String(taxYear));
+    xhr.send(fd);
+  });
+}
 
 type Props = {
   defaultYear: number;
@@ -17,6 +55,7 @@ const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
 export function UploadForm({ defaultYear, years, properties, action }: Props) {
   const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
 
@@ -30,6 +69,7 @@ export function UploadForm({ defaultYear, years, properties, action }: Props) {
         e.preventDefault();
         const fd = new FormData(e.currentTarget);
         const file = fd.get("file");
+        const taxYear = Number(fd.get("taxYear"));
         if (!(file instanceof File) || file.size === 0) {
           setError("Choose a file to upload.");
           return;
@@ -42,19 +82,21 @@ export function UploadForm({ defaultYear, years, properties, action }: Props) {
         }
         setSubmitting(true);
         setError(null);
+        setStatus(`Uploading ${file.name} · 0%`);
         try {
-          const blob = await upload(file.name, file, {
-            access: "public",
-            handleUploadUrl: "/api/upload/tax-doc",
-            contentType: file.type || "application/octet-stream",
+          const uploaded = await uploadTaxDoc(file, taxYear, (pct) => {
+            setStatus(`Uploading ${file.name} · ${Math.round(pct)}%`);
           });
-          fd.set("fileUrl", blob.url);
-          fd.set("fileName", file.name);
-          fd.set("fileSize", String(file.size));
+          fd.set("fileUrl", uploaded.url);
+          fd.set("fileName", uploaded.name);
+          fd.set("fileSize", String(uploaded.size));
           fd.delete("file");
+          setStatus("Saving document…");
           await action(fd);
         } catch (err) {
+          console.error("[tax-upload-form] submit failed", err);
           setError(err instanceof Error ? err.message : String(err));
+          setStatus("");
           setSubmitting(false);
         }
       }}
@@ -186,7 +228,7 @@ export function UploadForm({ defaultYear, years, properties, action }: Props) {
         >
           {submitting ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" /> Uploading…
+              <Loader2 className="w-4 h-4 animate-spin" /> {status || "Uploading…"}
             </>
           ) : (
             <>

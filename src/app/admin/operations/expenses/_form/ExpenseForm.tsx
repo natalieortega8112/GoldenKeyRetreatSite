@@ -2,11 +2,44 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { upload } from "@vercel/blob/client";
 import { ExternalLink, Loader2, Upload } from "lucide-react";
 import type { Expense, Property } from "@/lib/operations";
 import { EXPENSE_CATEGORIES } from "@/lib/operations-constants";
 import { centsToDollars } from "@/lib/money";
+
+async function uploadReceipt(file: File, onProgress: (pct: number) => void): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/upload/receipt");
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress((e.loaded / e.total) * 100);
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (data.url) resolve(data.url);
+          else reject(new Error(data.error || "Upload succeeded but no URL returned."));
+        } catch {
+          reject(new Error("Server sent an invalid response."));
+        }
+      } else {
+        let msg = `Upload failed (${xhr.status})`;
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (data.error) msg = data.error;
+        } catch {}
+        reject(new Error(msg));
+      }
+    };
+    xhr.onerror = () => reject(new Error("Network error while uploading receipt."));
+    xhr.ontimeout = () => reject(new Error("Upload timed out."));
+    xhr.timeout = 120_000;
+    const fd = new FormData();
+    fd.append("file", file);
+    xhr.send(fd);
+  });
+}
 
 type Props = {
   initial?: Expense;
@@ -52,34 +85,10 @@ export function ExpenseForm({
         try {
           if (receipt instanceof File && receipt.size > 0) {
             setStatus(`Uploading ${receipt.name} · 0%`);
-            const controller = new AbortController();
-            const timeout = setTimeout(() => {
-              controller.abort();
-            }, 90_000);
-            let blob;
-            try {
-              blob = await upload(receipt.name, receipt, {
-                access: "public",
-                handleUploadUrl: "/api/upload/receipt",
-                contentType: receipt.type || "application/octet-stream",
-                abortSignal: controller.signal,
-                onUploadProgress: ({ percentage }) => {
-                  setStatus(
-                    `Uploading ${receipt.name} · ${Math.round(percentage)}%`,
-                  );
-                },
-              });
-            } catch (err) {
-              if (controller.signal.aborted) {
-                throw new Error(
-                  "Upload stalled after 90 s. This usually means an ad blocker, VPN, or corporate firewall is blocking blob.vercel-storage.com — try a different browser or turn off shields.",
-                );
-              }
-              throw err;
-            } finally {
-              clearTimeout(timeout);
-            }
-            fd.set("receiptUrl", blob.url);
+            const url = await uploadReceipt(receipt, (pct) => {
+              setStatus(`Uploading ${receipt.name} · ${Math.round(pct)}%`);
+            });
+            fd.set("receiptUrl", url);
           }
           fd.delete("receiptFile");
           setStatus("Saving expense…");
