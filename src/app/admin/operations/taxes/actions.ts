@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { put, del } from "@vercel/blob";
+import { del } from "@vercel/blob";
 import { isAdmin } from "@/lib/auth";
 import { isDbConfigured } from "@/lib/db";
 import {
@@ -10,8 +10,6 @@ import {
   deleteTaxDocument,
   getTaxDocument,
 } from "@/lib/operations";
-
-const BLOB_PREFIX = "tax-documents/";
 
 function str(v: FormDataEntryValue | null): string {
   return String(v ?? "").trim();
@@ -22,18 +20,9 @@ function orNull(v: FormDataEntryValue | null): string | null {
   return s === "" ? null : s;
 }
 
-function safeName(name: string): string {
-  return name.replace(/[^a-zA-Z0-9._-]/g, "_");
-}
-
 export async function uploadTaxDocumentAction(formData: FormData) {
   if (!(await isAdmin())) redirect("/admin/login");
   if (!isDbConfigured()) throw new Error("Database is not configured.");
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    throw new Error(
-      "File upload is not configured. Set BLOB_READ_WRITE_TOKEN in your Vercel project (Storage → Blob).",
-    );
-  }
 
   const taxYear = Number(formData.get("taxYear"));
   if (!Number.isFinite(taxYear) || taxYear < 2000 || taxYear > 2100) {
@@ -45,28 +34,20 @@ export async function uploadTaxDocumentAction(formData: FormData) {
   const notes = str(formData.get("notes"));
   const propertyId = orNull(formData.get("propertyId"));
 
-  const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0) {
-    throw new Error("Please choose a file to upload");
-  }
-
-  const key = `${BLOB_PREFIX}${taxYear}/${Date.now()}-${Math.random()
-    .toString(36)
-    .slice(2, 8)}-${safeName(file.name)}`;
-  const blob = await put(key, file, {
-    access: "public",
-    addRandomSuffix: false,
-    contentType: file.type || "application/octet-stream",
-  });
+  const fileUrl = str(formData.get("fileUrl"));
+  const fileName = str(formData.get("fileName"));
+  const fileSizeRaw = Number(formData.get("fileSize"));
+  const fileSize = Number.isFinite(fileSizeRaw) ? fileSizeRaw : 0;
+  if (!fileUrl) throw new Error("Upload didn't complete — try again.");
 
   await createTaxDocument({
     taxYear,
     category,
-    name: name || file.name,
+    name: name || fileName,
     propertyId,
-    fileUrl: blob.url,
-    fileName: file.name,
-    fileSize: file.size,
+    fileUrl,
+    fileName,
+    fileSize,
     notes,
   });
 

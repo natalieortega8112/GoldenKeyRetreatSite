@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { upload } from "@vercel/blob/client";
 import { ExternalLink, Loader2, Upload } from "lucide-react";
 import type { Expense, Property } from "@/lib/operations";
 import { EXPENSE_CATEGORIES } from "@/lib/operations-constants";
@@ -19,7 +20,7 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
 export function ExpenseForm({
   initial,
@@ -40,13 +41,22 @@ export function ExpenseForm({
         const receipt = fd.get("receiptFile");
         if (receipt instanceof File && receipt.size > MAX_UPLOAD_BYTES) {
           setError(
-            `Receipt is ${(receipt.size / 1024 / 1024).toFixed(1)} MB — the limit is 10 MB. Take a photo or use a smaller scan.`,
+            `Receipt is ${(receipt.size / 1024 / 1024).toFixed(1)} MB — the limit is 25 MB. Take a photo or use a smaller scan.`,
           );
           return;
         }
         setSubmitting(true);
         setError(null);
         try {
+          if (receipt instanceof File && receipt.size > 0) {
+            const blob = await upload(receipt.name, receipt, {
+              access: "public",
+              handleUploadUrl: "/api/upload/receipt",
+              contentType: receipt.type || "application/octet-stream",
+            });
+            fd.set("receiptUrl", blob.url);
+          }
+          fd.delete("receiptFile");
           await action(fd);
         } catch (err) {
           setError(err instanceof Error ? err.message : String(err));
@@ -181,7 +191,7 @@ export function ExpenseForm({
               )}
             </div>
             <span className="block text-[11px] text-muted mt-1">
-              PDF, PNG, or JPG · max 10 MB. Replaces the current receipt if one is attached.
+              PDF, PNG, or JPG · max 25 MB. Replaces the current receipt if one is attached.
             </span>
           </label>
           <Field
