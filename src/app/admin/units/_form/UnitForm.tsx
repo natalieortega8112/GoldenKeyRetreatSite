@@ -178,9 +178,26 @@ export function UnitForm({ initial, properties, action, submitLabel }: Props) {
             className="block w-full text-sm text-charcoal file:mr-3 file:rounded-md file:border-0 file:bg-gold/15 file:px-3 file:py-2 file:text-gold-deep hover:file:bg-gold/25"
           />
           <p className="text-xs text-muted mt-2">
-            Photos upload to Vercel Blob. The first photo is used as the cover
-            unless you select one below.
+            Upload from your device (photo store setup pending) OR paste image
+            URLs below — one per line, from Airbnb / VRBO / Google Drive. The
+            first photo becomes the cover unless you pick one.
           </p>
+
+          <label className="block mt-3">
+            <span className="text-xs font-medium uppercase tracking-wider text-charcoal mb-1.5 block">
+              Or paste image URLs (one per line)
+            </span>
+            <textarea
+              name="pastedPhotoUrls"
+              rows={4}
+              placeholder={"https://a0.muscache.com/im/pictures/…\nhttps://…"}
+              className="w-full rounded-md border border-line bg-cream-soft px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+            />
+            <span className="text-[11px] text-muted mt-1 block">
+              To grab an Airbnb photo URL: on your listing page, right-click
+              the photo → &ldquo;Copy image address&rdquo; and paste here.
+            </span>
+          </label>
 
           {photos.length > 0 && (
             <div className="mt-4 grid grid-cols-2 gap-3">

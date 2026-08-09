@@ -60,8 +60,12 @@ async function buildInputFromForm(formData: FormData): Promise<UnitInput> {
   const newFiles = formData.getAll("newPhotos").filter(
     (v): v is File => v instanceof File && v.size > 0,
   );
-  const newUrls = await uploadPhotos(newFiles);
-  const photoUrls = [...existingPhotos, ...newUrls];
+  const newUrls = newFiles.length > 0 ? await uploadPhotos(newFiles) : [];
+  const pastedUrls = String(formData.get("pastedPhotoUrls") ?? "")
+    .split(/\r?\n/)
+    .map((s) => s.trim())
+    .filter((s) => /^https?:\/\//i.test(s));
+  const photoUrls = [...existingPhotos, ...newUrls, ...pastedUrls];
 
   const coverFromForm = String(formData.get("coverImageUrl") || "").trim();
   const coverImageUrl =
