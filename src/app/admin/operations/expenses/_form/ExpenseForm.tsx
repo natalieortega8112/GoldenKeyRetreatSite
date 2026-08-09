@@ -30,6 +30,7 @@ export function ExpenseForm({
   submitLabel,
 }: Props) {
   const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [pickedFile, setPickedFile] = useState<string>("");
 
@@ -47,19 +48,32 @@ export function ExpenseForm({
         }
         setSubmitting(true);
         setError(null);
+        setStatus("");
         try {
           if (receipt instanceof File && receipt.size > 0) {
-            const blob = await upload(receipt.name, receipt, {
+            setStatus(`Uploading ${receipt.name}…`);
+            const uploadPromise = upload(receipt.name, receipt, {
               access: "public",
               handleUploadUrl: "/api/upload/receipt",
               contentType: receipt.type || "application/octet-stream",
             });
+            const timeoutPromise = new Promise<never>((_, reject) =>
+              setTimeout(
+                () => reject(new Error("Upload timed out after 60 s")),
+                60_000,
+              ),
+            );
+            const blob = await Promise.race([uploadPromise, timeoutPromise]);
             fd.set("receiptUrl", blob.url);
           }
           fd.delete("receiptFile");
+          setStatus("Saving expense…");
           await action(fd);
         } catch (err) {
-          setError(err instanceof Error ? err.message : String(err));
+          const msg = err instanceof Error ? err.message : String(err);
+          console.error("[expense-form] submit failed", err);
+          setError(msg);
+          setStatus("");
           setSubmitting(false);
         }
       }}
@@ -227,7 +241,7 @@ export function ExpenseForm({
             className="btn-gold w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium disabled:opacity-60"
           >
             {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-            {submitting ? "Saving…" : submitLabel}
+            {submitting ? status || "Saving…" : submitLabel}
           </button>
           <Link
             href="/admin/operations/expenses"
